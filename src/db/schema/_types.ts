@@ -23,3 +23,11 @@ export const daterange = customType<{ data: string }>({
 export function stayRange(checkIn: string, checkOut: string): string {
   return `[${checkIn},${checkOut})`;
 }
+
+/** Inverse of stayRange for claims read back from the DB. */
+export function parseStayRange(
+  stay: string,
+): { checkIn: string; checkOut: string } | null {
+  const m = /^\[(\d{4}-\d{2}-\d{2}),(\d{4}-\d{2}-\d{2})\)$/.exec(stay);
+  return m ? { checkIn: m[1], checkOut: m[2] } : null;
+}
