@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/sweep-holds",
+      "schedule": "0 3 * * *"
+    }
+  ]
+}
