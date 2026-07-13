@@ -1,0 +1,64 @@
+# HANDOFF — Stay.WitUS project context
+
+*Draft for BAM's review, 2026-07-09. Purpose: let a Claude session opened in THIS repo take over with full context. Sessions here do NOT inherit the wanderlearn-directory memory — this file is the bridge. Read CLAUDE.md (invariants + working rules) alongside this.*
+
+## What this is and why it exists
+
+Stay.WitUS (`stay.witus.online`) is BAM's **resellable, runtime multi-tenant, white-label hotel-website product**: real-time room booking with mobile-money deposits, self-service CMS, a vetted concierge partner marketplace, guest broadcast messaging, and (later) a guest community hub. One deployment + one Neon DB serves every hotel; a customer is a tenant row + a domain.
+
+**Origin:** BAM (in Ghana, July 2026) landed a paid job with a UK-based, Ghanaian-origin hotel owner in Osu, Accra: a before/after renovation 360° tour (separate engagement, $1,500/tour — see RealEstate.WitUS below) and then this: the hotel's full website. The owner must run the site himself; BAM only ships features/fixes and resells the platform to more properties. The owner also runs another property on Airbnb with a WhatsApp guest community — that playbook (area tips, "water is down/water is back", "museum trip Saturday, reserve your spot") is productized here as announcements + concierge + hub.
+
+**Sibling ventures (separate products, do not conflate):** Wanderlearn = education (360° place-based learning). RealEstate.WitUS (`realestate.witus.online`) = before/after virtual tours, Insta360 X5 + RealSee dollhouse, diaspora remote-verification niche. Stay.WitUS = hotel websites. All under WitUS; registry at `gemini/witus/lib/products.ts`.
+
+## Where everything lives
+
+| Artifact | Location |
+|---|---|
+| **Canonical build plan** (approved by BAM in plan mode + 2 revisions) | `gemini/wanderlearn/plans/runbooks/stay-witus-plan.md` |
+| Client proposal (Osu hotel; BAM prices + sends) | `gemini/wanderlearn/plans/proposals/osu-hotel/` |
+| Operator task queue (01–07) | `gemini/wanderlearn/plans/user-tasks/` |
+| Market research (diaspora, pricing, competitors) | `gemini/wanderlearn/plans/reports/` |
+| Repo-local backlog docs | `plans/` here (gitignored): 01 pointer, 02 offline strategy, 03 owner customization ladder, 04 error handling |
+| Tenancy machinery source-of-patterns | `claude/witus-learn` (tenants/domains/memberships, vercel-domains.ts, mailer) |
+| Support-system source | `gemini/wanderlearn/wanderlearn-app` (`src/db/schema/support.ts` + actions + pages) |
+| Payments webhook pattern | `gemini/tour-manager-os/app/api/stripe/webhook/route.ts` |
+
+## Key decisions and their reasons (do not re-litigate casually)
+
+1. **Runtime multi-tenant on witus-learn's lifted machinery** (NOT deploy-per-customer): new customer = tenant row + domain; bug fixes ship to all hotels at once. Proven by bettervice.club / elementarymba.com.
+2. **Paystack for Ghana guest payments (GHS)** — Stripe cannot merchant Ghana businesses; Ghana FX Act 723 bars domestic USD pricing. **Per-tenant provider selection** (`tenants.payment.provider: paystack|stripe`) so Stripe-country customers work day one.
+3. **Platform billing (tenant owner → BAM) is separate from guest payments:** card via BAM's own Stripe (B4C LLC, US), or **MoMo → BAM's MoMo** with claim-then-confirm (invoice shows BAM's number + reference; payer taps "I've sent it"; BAM confirms in /platform). Per-client pricing in `tenant_billing`.
+4. **Mailgun, not Resend** (BAM's call; witus-learn mailer pattern, per-tenant `from` so hotel mail sends as the hotel).
+5. **Booking default: instant book, 30% deposit** (all three modes built, owner-toggleable). Double-booking prevented at the DB: `unit_claims` exclusion constraint (migration 0001 — **applied to Neon successfully 2026-07-09**).
+6. **Guests never need accounts to book**; optional magic-link "stay accounts" unlock hub/feedback/RSVP. Partners get magic-link self-edit only. Staff invite-only. **No shared WitUS OIDC** for customer tenants.
+7. **Lean Dec-2026 launch** (Osu hotel reopening): booking + site + partner apply/vet/suspend + announcements + cultural/seasonal events. Q1 2027: guest hub, partner ratings, Airbnb/Booking.com iCal. P3 backlog: charge-to-room folio (settle cash/MoMo/card), channel manager, WhatsApp Business API, owner's second property (= another tenant row).
+8. **No AI-generated content reaches guests.** English-first; es later, hand-translated.
+9. **Owner customization target: "rung 2"** (section reorder/toggles/variants on curated layouts) — see `plans/03`; drag-and-drop rejected (breaks a11y/mobile gates). DISCUSSION WITH BAM STILL PENDING.
+
+## Current state (as of this handoff)
+
+- **Deployed skeleton:** scaffold merged to `main`; `feat/infra-env-analytics` merged (STORAGE_ env, Vercel Analytics, env docs); `feat/platform-landing` pushed (platform landing on stay.witus.online — DB-free host detection) — check PR state.
+- **Infra live:** GitHub `dapperAuteur/stay-witus` · Vercel `bam-apps/stay-witus` (analytics enabled, domain `stay.witus.online` attached by BAM) · Neon via marketplace (`STORAGE_DATABASE_URL`) · **migrations 0000+0001 applied** — schema + citext + btree_gist + `unit_claims_no_overlap` are live.
+- **Not yet:** Better Auth wiring (auth schema exists; `/platform` is `PLATFORM_BOOTSTRAP`-gated placeholder) · booking engine logic · all admin UIs · Paystack/Stripe providers · Mailgun DNS (task 04) · witus-inbox/outbox wiring · seeding (no tenants rows yet) · `products.ts` registry entry.
+- **Client engagement:** proposal awaits BAM pricing + send (task 01). Paystack business verification = critical path (task 02). Owner content due mid-Oct (task 05).
+
+## Short-term plan (workstream order, from the canonical runbook)
+
+1. **Booking engine** (largest, most novel): availability query over `unit_claims` (lazy hold expiry), rate resolution (base + `rate_overrides` by priority/dow), hold lifecycle (create on search-select, 15 min, sweep in cron), reservation create with `FOR UPDATE SKIP LOCKED` unit pick. Vitest for rate/date math; integration test the exclusion constraint (two concurrent claims → second fails).
+2. **Identity:** Better Auth (magic link + staff invites), `tenant_memberships` RBAC helpers, platform-owner gate replacing `PLATFORM_BOOTSTRAP`.
+3. **Payments:** `PaymentProvider` interface; Paystack impl (init + `x-paystack-signature` HMAC-SHA512 webhook, `payments.providerRef` idempotency); Stripe impl later.
+4. **Public booking flow** (mobile-first 375×667): search → hold → guest details → pay/confirm → confirmation + stay-account CTA.
+5. **Admin:** today dashboard, reservations, per-unit calendar with click-blockouts, pricing calendar.
+6. **CMS + events + partners + announcements**, then **support lift** (finish attachment wiring), **branding editor**, **/platform** (tenants CRUD, flags, billing incl. MoMo confirm queue, cross-tenant support, audit logs), SEO/CWV, seeding (platform tenant + Osu hotel tenant).
+
+## Long-term plan
+
+P2 (Q1 2027): guest hub, partner ratings, iCal sync, paid ticketing, Stripe guest-payments, es locale. P3: folio/charge-to-room, channel manager integration, WhatsApp Business API, multi-property owners, repeat-guest recognition. Resale motion: expo circuit (London Oct 2026, Accra Dec 2026) selling to developers/agents; reprice before customer #2 (see runbook §resale + proposal appendix ranges).
+
+## Working rules that bit us already (respect them)
+
+- **Check `git branch --show-current` before EVERY commit** — BAM's GitHub first-push renamed `feat/scaffold` to `main` mid-session; the `.githooks/pre-commit` guard (activate: `git config core.hooksPath .githooks`) saved us once already.
+- Migrations always file a run-migration user-task (wanderlearn queue) — BAM runs them.
+- `drizzle-kit` reads env through `drizzle.config.ts`'s own loader (`.env`, `.env.local`, STORAGE_ prefix) — don't "fix" it back to plain DATABASE_URL.
+- Never read `.env` files. Never commit on main. BAM merges everything.
+- Envelope `{ok,data}|{ok,error,code}` on every action/route; slate-* neutrals; 44px targets; no em-dashes in microcopy.
