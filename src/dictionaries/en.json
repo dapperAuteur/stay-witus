@@ -1,0 +1,27 @@
+{
+  "common": {
+    "brand": "Stay.WitUS",
+    "loading": "Loading",
+    "backHome": "Back to home"
+  },
+  "home": {
+    "bookYourStay": "Book your stay",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "guests": "Guests",
+    "searchRooms": "See available rooms",
+    "comingSoon": "Launching soon",
+    "comingSoonBody": "This site is being prepared. Check back shortly."
+  },
+  "setup": {
+    "title": "No site is configured for this address",
+    "body": "This host is not mapped to a property yet. If you are the site owner, add the domain from your admin dashboard."
+  },
+  "platform": {
+    "title": "Stay.WitUS Platform",
+    "tenants": "Properties",
+    "billing": "Billing",
+    "support": "Support inbox",
+    "logs": "Logs"
+  }
+}

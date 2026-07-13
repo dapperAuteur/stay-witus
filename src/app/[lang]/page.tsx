@@ -1,0 +1,64 @@
+import { notFound } from "next/navigation";
+import { getDictionary, hasLocale } from "@/lib/dictionaries";
+import { resolveTenant } from "@/lib/tenant";
+
+export const dynamic = "force-dynamic";
+
+// Tenant home. Three states:
+//  1. No tenant for this host  -> setup notice (also what local dev sees pre-seed)
+//  2. Tenant flagged comingSoon -> launch placeholder
+//  3. Live tenant              -> hotel landing (booking widget lands with the
+//     booking workstream; this shell renders identity + booking entry point)
+
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await params;
+  if (!hasLocale(lang)) notFound();
+  const dict = await getDictionary(lang);
+
+  const tenant = await resolveTenant().catch(() => null);
+
+  if (!tenant) {
+    return (
+      <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-3 px-6 text-center">
+        <h1 className="text-2xl font-bold">{dict.setup.title}</h1>
+        <p className="text-slate-600 dark:text-slate-400">{dict.setup.body}</p>
+      </main>
+    );
+  }
+
+  if (tenant.flags.comingSoon) {
+    return (
+      <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-3 px-6 text-center">
+        <h1 className="text-3xl font-bold">{tenant.theme.name ?? tenant.name}</h1>
+        <p className="text-lg font-medium" style={{ color: "var(--brand-accent)" }}>
+          {dict.home.comingSoon}
+        </p>
+        <p className="text-slate-600 dark:text-slate-400">{dict.home.comingSoonBody}</p>
+      </main>
+    );
+  }
+
+  return (
+    <main className="mx-auto max-w-4xl px-4 py-10">
+      <header className="flex flex-col gap-1">
+        <h1 className="text-3xl font-bold">{tenant.theme.name ?? tenant.name}</h1>
+        {tenant.tagline ? (
+          <p className="text-slate-600 dark:text-slate-400">{tenant.tagline}</p>
+        ) : null}
+      </header>
+
+      <section aria-labelledby="booking-heading" className="mt-8">
+        <h2 id="booking-heading" className="text-xl font-semibold">
+          {dict.home.bookYourStay}
+        </h2>
+        <p className="mt-2 text-slate-600 dark:text-slate-400">
+          Room search and booking arrive with the booking workstream.
+        </p>
+      </section>
+    </main>
+  );
+}
