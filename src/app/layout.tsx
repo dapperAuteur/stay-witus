@@ -6,6 +6,17 @@ export const metadata: Metadata = {
   title: { default: "Stay.WitUS", template: "%s | Stay.WitUS" },
   description:
     "Hotel websites with booking, concierge, and guest messaging. A WitUS platform.",
+  // Ecosystem favicon: 02-duality variant (gemini/witus/public/brand/README.md) —
+  // the one variant that carries contrast on light tabs. Platform surface only;
+  // hotel tenants get tenants.theme.faviconUrl once per-tenant metadata lands.
+  icons: {
+    icon: [
+      { url: "/brand/witus/favicon.svg", type: "image/svg+xml" },
+      { url: "/brand/witus/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/brand/witus/favicon-16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: [{ url: "/brand/witus/favicon-180.png", sizes: "180x180" }],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
