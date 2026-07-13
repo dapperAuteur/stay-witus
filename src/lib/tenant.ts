@@ -30,6 +30,18 @@ export async function getTenantByHost(
   return tenant && tenant.isActive ? tenant : null;
 }
 
+/** Slug lookup for webhook routes, where there is no tenant Host to resolve. */
+export async function getTenantBySlug(slug: string): Promise<TenantRecord | null> {
+  if (!slug || !hasDatabase) return null;
+  const rows = await db()
+    .select()
+    .from(tenants)
+    .where(eq(tenants.slug, slug))
+    .limit(1);
+  const tenant = rows[0] ?? null;
+  return tenant && tenant.isActive ? tenant : null;
+}
+
 /** Per-request memoized resolution from the incoming Host header. */
 export const resolveTenant = cache(async (): Promise<TenantRecord | null> => {
   const h = await headers();

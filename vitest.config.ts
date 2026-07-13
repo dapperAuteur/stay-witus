@@ -10,5 +10,9 @@ export default defineConfig({
     // Integration tests round-trip to Neon.
     testTimeout: 30_000,
     hookTimeout: 30_000,
+    // The integration suites share one Neon database; parallel workers
+    // contend for connections and time each other out. Unit files are fast
+    // enough that serial execution costs little.
+    fileParallelism: false,
   },
 });
