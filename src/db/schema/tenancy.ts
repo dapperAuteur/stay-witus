@@ -32,6 +32,16 @@ export interface TenantTheme {
   presetKey?: string;
   /** Resolved accent tokens derived from the preset, e.g. { accent, accentFg }. */
   colors?: Record<string, string>;
+  // ── Rung 2 section control (BAM decision 2026-07-13; src/lib/sections.ts
+  //    normalizes all four — unknown keys/variants collapse to defaults) ──
+  /** Curated pairing key (src/lib/font-pairs.ts) — never free font names. */
+  fontPairKey?: string;
+  /** Homepage section order; missing known sections append in default order. */
+  sectionOrder?: string[];
+  /** Hidden sections ("hero" is never hideable). */
+  sectionHidden?: string[];
+  /** Per-section layout variant, e.g. { rooms: "list" }. */
+  sectionVariants?: Record<string, string>;
 }
 
 export interface TenantFlags {
