@@ -155,6 +155,15 @@
     "title": "No site is configured for this address",
     "body": "This host is not mapped to a property yet. If you are the site owner, add the domain from your admin dashboard."
   },
+  "signIn": {
+    "title": "Sign in",
+    "body": "We will email you a one-time link to sign in to",
+    "emailLabel": "Email address",
+    "submit": "Email me a sign-in link",
+    "sent": "Check your email. If that address has access, a sign-in link is on its way. It expires in 10 minutes.",
+    "invalid": "That does not look like an email address. Please check it and try again.",
+    "unavailable": "Sign-in is not available right now. Please try again later."
+  },
   "platform": {
     "title": "Stay.WitUS Platform",
     "tenants": "Properties",
