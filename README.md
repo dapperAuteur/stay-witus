@@ -41,8 +41,12 @@ UI work. `/api/health` reports which integrations are configured.
 src/db/schema/      one file per domain: tenancy, billing, auth, rooms, booking,
                     partners, events, messaging, content, settings, support, audit
 src/db/migrations/  0000 schema + 0001 extensions & the no-overlap constraint
-src/lib/            env, result envelope, tenant resolution, mailer, brand presets
-src/app/[lang]/     tenant-resolved public pages (+ /platform: BAM's dashboard)
+src/lib/booking/    availability, rates, holds, summaries (engine; DB-backstopped)
+src/lib/payments/   PaymentProvider interface + Paystack (per-tenant webhook)
+src/lib/            env, result envelope, tenant/rbac, auth, mailer, sections, fonts
+src/app/[lang]/     tenant pages: sectioned homepage, /book flow, /sign-in,
+                    /roadmap (platform), /platform (BAM's dashboard)
+plans/user-tasks/   BAM's operator queue (NN-describe.md + 00 index)
 ```
 
 Key invariants live in [CLAUDE.md](CLAUDE.md). The canonical build plan lives in the

@@ -53,5 +53,5 @@ export default async function HomePage({
     );
   }
 
-  return <HotelHome tenant={tenant} dict={dict} />;
+  return <HotelHome tenant={tenant} dict={dict} lang={lang} />;
 }
