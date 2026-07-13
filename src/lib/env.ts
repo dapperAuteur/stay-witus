@@ -2,7 +2,11 @@
 // process.env (Vercel env / local .env loaded by Next).
 
 export const env = {
-  DATABASE_URL: process.env.DATABASE_URL,
+  // Neon via the Vercel Marketplace integration with the "STORAGE_" prefix
+  // (BAM's setup). Plain DATABASE_URL is the fallback for local dev or a
+  // manually provisioned database — verify the exact names in Vercel's env
+  // list rather than assuming (authoritative-values rule).
+  DATABASE_URL: process.env.STORAGE_DATABASE_URL ?? process.env.DATABASE_URL,
   BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
   BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
 
