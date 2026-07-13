@@ -1,13 +1,19 @@
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
+import { PlatformLanding } from "@/components/platform-landing";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
+import { isPlatformHost } from "@/lib/platform-host";
 import { resolveTenant } from "@/lib/tenant";
 
 export const dynamic = "force-dynamic";
 
-// Tenant home. Three states:
-//  1. No tenant for this host  -> setup notice (also what local dev sees pre-seed)
-//  2. Tenant flagged comingSoon -> launch placeholder
-//  3. Live tenant              -> hotel landing (booking widget lands with the
+// Tenant home. Four states:
+//  1. Platform host (stay.witus.online, previews, localhost) or a tenant
+//     flagged platform -> the Stay.WitUS product landing (DB-free path so the
+//     domain works before seeding)
+//  2. No tenant for this host  -> setup notice
+//  3. Tenant flagged comingSoon -> launch placeholder
+//  4. Live tenant              -> hotel landing (booking widget lands with the
 //     booking workstream; this shell renders identity + booking entry point)
 
 export default async function HomePage({
@@ -20,6 +26,10 @@ export default async function HomePage({
   const dict = await getDictionary(lang);
 
   const tenant = await resolveTenant().catch(() => null);
+
+  if (tenant?.flags.platform || (!tenant && isPlatformHost((await headers()).get("host")))) {
+    return <PlatformLanding dict={dict} />;
+  }
 
   if (!tenant) {
     return (

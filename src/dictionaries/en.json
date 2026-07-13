@@ -13,6 +13,40 @@
     "comingSoon": "Launching soon",
     "comingSoonBody": "This site is being prepared. Check back shortly."
   },
+  "landing": {
+    "headline": "Hotel websites that take bookings themselves",
+    "subhead": "A complete website for your property: real-time room booking with mobile money and cards, events, a vetted local concierge, and guest messaging. You manage everything from your phone; we handle the rest.",
+    "featuresLabel": "What you get",
+    "features": [
+      {
+        "title": "Bookings with deposits",
+        "body": "Guests confirm a room in cedis by MTN MoMo, Telecel Cash, AirtelTigo Money, or card. Card-country properties can run Stripe instead."
+      },
+      {
+        "title": "Run it yourself",
+        "body": "Rooms, prices, photos, menus, events, and your local guide, all editable by your team in minutes. No developer needed."
+      },
+      {
+        "title": "A concierge your guests trust",
+        "body": "Drivers, guides, and nightlife contacts you vet, one WhatsApp tap away. Partners apply on the site and keep their own profiles current."
+      },
+      {
+        "title": "Reach your guests",
+        "body": "Send updates to current, upcoming, or past guests: an event with a reserve button, or simply that the water is back on."
+      },
+      {
+        "title": "Your brand, your domain",
+        "body": "Your logo, your colors, your web address. Confirmation emails come from your property's name."
+      },
+      {
+        "title": "Built for real connectivity",
+        "body": "Mobile-first and fast on 3G, with guest essentials that stay readable offline."
+      }
+    ],
+    "statusBadge": "First property launches December 2026",
+    "statusBody": "Stay.WitUS is onboarding its first properties now. Interested in yours? Reach out through witus.online.",
+    "footerPrefix": "A product of"
+  },
   "setup": {
     "title": "No site is configured for this address",
     "body": "This host is not mapped to a property yet. If you are the site owner, add the domain from your admin dashboard."
