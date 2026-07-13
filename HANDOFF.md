@@ -33,9 +33,11 @@ Stay.WitUS (`stay.witus.online`) is BAM's **resellable, runtime multi-tenant, wh
 6. **Guests never need accounts to book**; optional magic-link "stay accounts" unlock hub/feedback/RSVP. Partners get magic-link self-edit only. Staff invite-only. **No shared WitUS OIDC** for customer tenants.
 7. **Lean Dec-2026 launch** (Osu hotel reopening): booking + site + partner apply/vet/suspend + announcements + cultural/seasonal events. Q1 2027: guest hub, partner ratings, Airbnb/Booking.com iCal. P3 backlog: charge-to-room folio (settle cash/MoMo/card), channel manager, WhatsApp Business API, owner's second property (= another tenant row).
 8. **No AI-generated content reaches guests.** English-first; es later, hand-translated.
-9. **Owner customization target: "rung 2"** (section reorder/toggles/variants on curated layouts) — see `plans/03`; drag-and-drop rejected (breaks a11y/mobile gates). DISCUSSION WITH BAM STILL PENDING.
+9. **Owner customization target: "rung 2"** (section reorder/toggles/variants on curated layouts) — see `plans/03`; drag-and-drop rejected (breaks a11y/mobile gates). **DECIDED by BAM 2026-07-13 ("implement rung 2") and BUILT** (`src/lib/sections.ts` + `src/components/hotel/`); the `/admin/design` editor UI follows the identity workstream.
 
 ## Current state (as of this handoff)
+
+*Update 2026-07-13:* booking engine (availability + rates + hold lifecycle, `src/lib/booking/`, Neon-integration-tested), root→/en locale redirect, rung 2 section control (theme JSONB + `src/lib/sections.ts` + section homepage), ecosystem footer + `/roadmap` (platform surface only), and Better Auth identity (magic link, RBAC helpers in `src/lib/rbac.ts`, self-closing bootstrap window on /platform) are built — check branch/merge state. New operator tasks: 08 (CRON_SECRET), 09 (auth env + first platform owner). Sections below describe the 07-09 baseline.
 
 - **Deployed skeleton:** scaffold merged to `main`; `feat/infra-env-analytics` merged (STORAGE_ env, Vercel Analytics, env docs); `feat/platform-landing` pushed (platform landing on stay.witus.online — DB-free host detection) — check PR state.
 - **Infra live:** GitHub `dapperAuteur/stay-witus` · Vercel `bam-apps/stay-witus` (analytics enabled, domain `stay.witus.online` attached by BAM) · Neon via marketplace (`STORAGE_DATABASE_URL`) · **migrations 0000+0001 applied** — schema + citext + btree_gist + `unit_claims_no_overlap` are live.

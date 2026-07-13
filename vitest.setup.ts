@@ -8,3 +8,8 @@ for (const file of [".env.local", ".env"]) {
     // File absent (CI) — fine.
   }
 }
+
+// Test-only auth fallbacks so the Better Auth integration suite can run
+// without production secrets (it still needs the database URL to do anything).
+process.env.BETTER_AUTH_SECRET ??= "vitest-only-secret-never-production";
+process.env.BETTER_AUTH_URL ??= "http://localhost:3000";

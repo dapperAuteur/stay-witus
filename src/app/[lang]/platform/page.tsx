@@ -3,14 +3,15 @@ import { db } from "@/db";
 import { tenants } from "@/db/schema";
 import { env, hasDatabase } from "@/lib/env";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
+import { getSessionUser, platformOwnerExists } from "@/lib/rbac";
 
 export const dynamic = "force-dynamic";
 
 // BAM's platform dashboard skeleton: tenants, per-tenant flags/pricing,
 // billing (invoices + MoMo confirmation), cross-tenant support inbox, logs.
-// GUARD: until the Better Auth platform-owner gate ships (identity
-// workstream), this route only renders when PLATFORM_BOOTSTRAP=true —
-// it 404s in any environment where that env var is unset.
+// GUARD: platform owners only. PLATFORM_BOOTSTRAP keeps a temporary window
+// open ONLY while no platform owner exists yet (first sign-in, then BAM's
+// user gets is_platform_owner=true — user-task 09); it closes itself after.
 
 export default async function PlatformPage({
   params,
@@ -19,7 +20,15 @@ export default async function PlatformPage({
 }) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
-  if (!env.PLATFORM_BOOTSTRAP) notFound();
+
+  const user = await getSessionUser().catch(() => null);
+  if (!user?.isPlatformOwner) {
+    const bootstrapOpen =
+      env.PLATFORM_BOOTSTRAP &&
+      hasDatabase &&
+      !(await platformOwnerExists().catch(() => true));
+    if (!bootstrapOpen) notFound();
+  }
   const dict = await getDictionary(lang);
 
   const rows = hasDatabase
