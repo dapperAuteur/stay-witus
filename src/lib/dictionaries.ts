@@ -7,12 +7,8 @@ import type en from "@/dictionaries/en.json";
 
 export type Dictionary = typeof en;
 
-export const LOCALES = ["en"] as const;
-export type Locale = (typeof LOCALES)[number];
-
-export function hasLocale(value: string): value is Locale {
-  return (LOCALES as readonly string[]).includes(value);
-}
+export { LOCALES, hasLocale, type Locale } from "@/lib/locales";
+import type { Locale } from "@/lib/locales";
 
 const loaders: Record<Locale, () => Promise<Dictionary>> = {
   en: () => import("@/dictionaries/en.json").then((m) => m.default),
