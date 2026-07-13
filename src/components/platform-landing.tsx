@@ -1,14 +1,24 @@
+import Link from "next/link";
+import { SiteFooter } from "@/components/site-footer";
 import type { Dictionary } from "@/lib/dictionaries";
+import type { Locale } from "@/lib/locales";
 
 // The Stay.WitUS product landing, shown on platform hosts (stay.witus.online,
 // vercel.app previews, localhost) while tenant features are built out.
 // Copy is a working draft — BAM reviews and owns the words before any
 // marketing push (content rule: humans own what customers read).
 
-export function PlatformLanding({ dict }: { dict: Dictionary }) {
+export function PlatformLanding({
+  dict,
+  lang,
+}: {
+  dict: Dictionary;
+  lang: Locale;
+}) {
   const d = dict.landing;
   return (
-    <main className="mx-auto flex min-h-dvh max-w-3xl flex-col px-6 py-16">
+    <>
+      <main className="mx-auto flex min-h-dvh max-w-3xl flex-col px-6 py-16">
       <header className="flex flex-col gap-4">
         <p
           className="text-sm font-semibold uppercase tracking-wide"
@@ -45,20 +55,18 @@ export function PlatformLanding({ dict }: { dict: Dictionary }) {
           {d.statusBadge}
         </p>
         <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">{d.statusBody}</p>
-      </section>
-
-      <footer className="mt-auto pt-16 text-sm text-slate-500 dark:text-slate-500">
-        <p>
-          {d.footerPrefix}{" "}
-          <a
-            href="https://witus.online"
-            className="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+        <p className="mt-4">
+          <Link
+            href={`/${lang}/roadmap`}
+            className="inline-flex min-h-11 items-center text-sm font-semibold underline underline-offset-4 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+            style={{ color: "var(--brand-accent)" }}
           >
-            WitUS
-          </a>
-          .
+            {d.roadmapCta}
+          </Link>
         </p>
-      </footer>
-    </main>
+      </section>
+      </main>
+      <SiteFooter lang={lang} />
+    </>
   );
 }
