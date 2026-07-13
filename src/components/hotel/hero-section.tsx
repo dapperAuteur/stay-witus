@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { TenantRecord } from "@/lib/tenant";
 import type { Dictionary } from "@/lib/dictionaries";
 import type { siteSections } from "@/db/schema";
@@ -15,11 +16,13 @@ export function HeroSection({
   row,
   variant,
   dict,
+  lang,
 }: {
   tenant: TenantRecord;
   row: SiteSectionRow | undefined;
   variant: string;
   dict: Dictionary;
+  lang: string;
 }) {
   const name = row?.title ?? tenant.theme.name ?? tenant.name;
   const data = (row?.data ?? {}) as { imageUrl?: string; imageAlt?: string };
@@ -49,8 +52,8 @@ export function HeroSection({
             <Paragraphs text={row.body} />
           </div>
         ) : null}
-        <a
-          href="#rooms"
+        <Link
+          href={`/${lang}/book`}
           className="mt-6 inline-flex min-h-11 items-center rounded-full px-6 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
           style={{
             background: "var(--brand-accent)",
@@ -58,7 +61,7 @@ export function HeroSection({
           }}
         >
           {dict.home.searchRooms}
-        </a>
+        </Link>
       </div>
     </header>
   );

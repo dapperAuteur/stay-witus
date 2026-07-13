@@ -35,9 +35,11 @@ const SITE_SECTION_KEYS: Partial<Record<SectionKey, string>> = {
 export async function HotelHome({
   tenant,
   dict,
+  lang,
 }: {
   tenant: TenantRecord;
   dict: Dictionary;
+  lang: string;
 }) {
   const config = resolveSectionConfig(tenant.theme, tenant.flags);
   const need = new Set(config.order);
@@ -132,6 +134,7 @@ export async function HotelHome({
                 row={byKey.get("hero")}
                 variant={config.variants.hero}
                 dict={dict}
+                lang={lang}
               />
             );
           case "about":

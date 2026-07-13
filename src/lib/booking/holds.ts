@@ -23,6 +23,19 @@ import { computeDepositMinor, resolveStayRates, type NightRate } from "./rates";
 
 export const DEFAULT_HOLD_MINUTES = 15;
 
+/** What is due up front for a booking mode. Shared by confirm and the quote UI. */
+export function depositForMode(
+  mode: "request" | "instant_full" | "instant_deposit",
+  totalMinor: number,
+  depositPercent: number,
+): number {
+  if (mode === "instant_full") return totalMinor;
+  if (mode === "instant_deposit") {
+    return computeDepositMinor(totalMinor, depositPercent);
+  }
+  return 0;
+}
+
 /** Deepest pg error code in the cause chain (neon wraps driver errors). */
 export function pgErrorCode(error: unknown): string | undefined {
   let current: unknown = error;
@@ -329,12 +342,11 @@ async function confirmHoldOnce(
       roomType.baseRateMinor,
       overrides,
     );
-    const depositMinor =
-      bookingMode === "instant_full"
-        ? rates.totalMinor
-        : bookingMode === "instant_deposit"
-          ? computeDepositMinor(rates.totalMinor, depositPercent)
-          : 0;
+    const depositMinor = depositForMode(
+      bookingMode,
+      rates.totalMinor,
+      depositPercent,
+    );
     const status =
       bookingMode === "request" ? "awaiting_approval" : "pending_payment";
     const code = generateReservationCode(
