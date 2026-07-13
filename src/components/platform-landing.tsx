@@ -1,0 +1,64 @@
+import type { Dictionary } from "@/lib/dictionaries";
+
+// The Stay.WitUS product landing, shown on platform hosts (stay.witus.online,
+// vercel.app previews, localhost) while tenant features are built out.
+// Copy is a working draft — BAM reviews and owns the words before any
+// marketing push (content rule: humans own what customers read).
+
+export function PlatformLanding({ dict }: { dict: Dictionary }) {
+  const d = dict.landing;
+  return (
+    <main className="mx-auto flex min-h-dvh max-w-3xl flex-col px-6 py-16">
+      <header className="flex flex-col gap-4">
+        <p
+          className="text-sm font-semibold uppercase tracking-wide"
+          style={{ color: "var(--brand-accent)" }}
+        >
+          Stay.WitUS
+        </p>
+        <h1 className="text-4xl font-bold leading-tight sm:text-5xl">{d.headline}</h1>
+        <p className="max-w-xl text-lg text-slate-600 dark:text-slate-400">{d.subhead}</p>
+      </header>
+
+      <section aria-labelledby="features-heading" className="mt-12">
+        <h2 id="features-heading" className="sr-only">
+          {d.featuresLabel}
+        </h2>
+        <ul className="grid gap-4 sm:grid-cols-2">
+          {d.features.map((f) => (
+            <li
+              key={f.title}
+              className="rounded-xl border border-slate-200 p-4 dark:border-slate-800"
+            >
+              <h3 className="font-semibold">{f.title}</h3>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{f.body}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="mt-12">
+        <p
+          className="inline-flex min-h-11 items-center rounded-full px-5 text-sm font-semibold"
+          style={{ background: "var(--brand-accent)", color: "var(--brand-accent-fg)" }}
+        >
+          {d.statusBadge}
+        </p>
+        <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">{d.statusBody}</p>
+      </section>
+
+      <footer className="mt-auto pt-16 text-sm text-slate-500 dark:text-slate-500">
+        <p>
+          {d.footerPrefix}{" "}
+          <a
+            href="https://witus.online"
+            className="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+          >
+            WitUS
+          </a>
+          .
+        </p>
+      </footer>
+    </main>
+  );
+}
