@@ -47,3 +47,4 @@ src/app/[lang]/     tenant-resolved public pages (+ /platform: BAM's dashboard)
 
 Key invariants live in [CLAUDE.md](CLAUDE.md). The canonical build plan lives in the
 wanderlearn repo: `plans/runbooks/stay-witus-plan.md`.
+# stay-witus
