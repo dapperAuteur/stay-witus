@@ -47,6 +47,41 @@
     "statusBody": "Stay.WitUS is onboarding its first properties now. Interested in yours? Reach out through witus.online.",
     "footerPrefix": "A product of"
   },
+  "sections": {
+    "aboutTitle": "About",
+    "roomsTitle": "Rooms",
+    "roomsFrom": "From",
+    "roomsPerNight": "per night",
+    "roomsSleeps": "Sleeps",
+    "diningTitle": "Dining",
+    "eventsTitle": "What's on",
+    "conciergeTitle": "Trusted local partners",
+    "conciergeWhatsApp": "WhatsApp",
+    "conciergeCall": "Call",
+    "partnerCategories": {
+      "driver": "Driver",
+      "tour_guide": "Tour guide",
+      "nightlife": "Nightlife",
+      "food": "Food",
+      "wellness": "Wellness",
+      "shopping": "Shopping",
+      "emergency": "Emergency",
+      "other": "Local partner"
+    },
+    "guideTitle": "Local guide",
+    "guideWalkable": "Walkable",
+    "guideDayTrip": "Day trip",
+    "guideMinutesWalk": "min walk",
+    "guideMinutesDrive": "min drive",
+    "tourTitle": "Virtual tour",
+    "tourCta": "Step inside",
+    "contactTitle": "Find us",
+    "contactCheckIn": "Check-in from",
+    "contactCheckOut": "check-out by",
+    "contactWhatsApp": "Message on WhatsApp",
+    "contactCall": "Call the front desk",
+    "contactEmail": "Email"
+  },
   "setup": {
     "title": "No site is configured for this address",
     "body": "This host is not mapped to a property yet. If you are the site owner, add the domain from your admin dashboard."
