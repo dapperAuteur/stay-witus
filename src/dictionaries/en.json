@@ -45,7 +45,76 @@
     ],
     "statusBadge": "First property launches December 2026",
     "statusBody": "Stay.WitUS is onboarding its first properties now. Interested in yours? Reach out through witus.online.",
-    "footerPrefix": "A product of"
+    "roadmapCta": "See the public roadmap"
+  },
+  "roadmap": {
+    "title": "Roadmap",
+    "intro": "What we are building for properties on Stay.WitUS, in the order we are building it. Dates are targets we work toward, not promises.",
+    "phases": [
+      {
+        "label": "Building now",
+        "timeframe": "For the December 2026 launch",
+        "items": [
+          {
+            "title": "Real-time booking with deposits",
+            "body": "Live room availability, short holds while a guest checks out, and deposits in cedis by MTN MoMo, Telecel Cash, AirtelTigo Money, or card. The reservation engine is built so a double-booking is impossible, even under simultaneous requests."
+          },
+          {
+            "title": "Your website, run by your team",
+            "body": "Rooms, prices, photos, events, and your local guide, editable without a developer. Your logo, your colors, your domain: section order and layout are yours to arrange."
+          },
+          {
+            "title": "Vetted concierge partners",
+            "body": "Drivers, guides, and nightlife contacts apply on your site. You approve who appears; guests reach them directly on WhatsApp."
+          },
+          {
+            "title": "Guest announcements",
+            "body": "Send updates to current, upcoming, or past guests: an event with a reserve button, or simply that the water is back on."
+          }
+        ]
+      },
+      {
+        "label": "Next",
+        "timeframe": "Early 2027",
+        "items": [
+          {
+            "title": "Guest community hub",
+            "body": "A private space for your guests: area tips, house updates, and event RSVPs, inspired by the WhatsApp groups great hosts already run."
+          },
+          {
+            "title": "Partner ratings",
+            "body": "Guests rate concierge partners after a stay, so your roster keeps earning its place."
+          },
+          {
+            "title": "Calendar sync with Airbnb and Booking.com",
+            "body": "Two-way iCal so your direct site and the big platforms never sell the same night twice."
+          },
+          {
+            "title": "Paid event ticketing and Spanish",
+            "body": "Sell tickets to hotel events, and serve guests in Spanish with human-translated pages."
+          }
+        ]
+      },
+      {
+        "label": "Later",
+        "timeframe": "On the horizon",
+        "items": [
+          {
+            "title": "Charge to room",
+            "body": "Guests add drinks and extras to their stay and settle once, by cash, MoMo, or card."
+          },
+          {
+            "title": "Channel manager and WhatsApp Business",
+            "body": "Deeper distribution and guest messaging where your guests already are."
+          },
+          {
+            "title": "Multi-property owners",
+            "body": "Run a second property from the same account, with its own brand and domain."
+          }
+        ]
+      }
+    ],
+    "outro": "Something your property needs that is not here? Tell us through witus.online."
   },
   "sections": {
     "aboutTitle": "About",

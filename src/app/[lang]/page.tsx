@@ -29,7 +29,7 @@ export default async function HomePage({
   const tenant = await resolveTenant().catch(() => null);
 
   if (tenant?.flags.platform || (!tenant && isPlatformHost((await headers()).get("host")))) {
-    return <PlatformLanding dict={dict} />;
+    return <PlatformLanding dict={dict} lang={lang} />;
   }
 
   if (!tenant) {
