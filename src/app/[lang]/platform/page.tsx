@@ -1,9 +1,10 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/db";
 import { tenants } from "@/db/schema";
-import { env, hasDatabase } from "@/lib/env";
+import { hasDatabase } from "@/lib/env";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
-import { getSessionUser, platformOwnerExists } from "@/lib/rbac";
+import { requirePlatformPage } from "@/lib/platform/guard";
 
 export const dynamic = "force-dynamic";
 
@@ -21,14 +22,7 @@ export default async function PlatformPage({
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
 
-  const user = await getSessionUser().catch(() => null);
-  if (!user?.isPlatformOwner) {
-    const bootstrapOpen =
-      env.PLATFORM_BOOTSTRAP &&
-      hasDatabase &&
-      !(await platformOwnerExists().catch(() => true));
-    if (!bootstrapOpen) notFound();
-  }
+  await requirePlatformPage();
   const dict = await getDictionary(lang);
 
   const rows = hasDatabase
@@ -46,6 +40,14 @@ export default async function PlatformPage({
         <ul className="flex flex-wrap gap-2 text-sm">
           <li className="rounded-full border border-slate-300 px-3 py-1.5 dark:border-slate-700">
             {dict.platform.tenants}
+          </li>
+          <li>
+            <Link
+              href={`/${lang}/platform/domains`}
+              className="inline-flex rounded-full border border-slate-900 px-3 py-1.5 font-semibold underline-offset-4 hover:underline dark:border-slate-100"
+            >
+              {dict.platform.domains.title}
+            </Link>
           </li>
           <li className="rounded-full border border-slate-300 px-3 py-1.5 dark:border-slate-700">
             {dict.platform.billing}
