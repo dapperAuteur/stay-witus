@@ -28,6 +28,7 @@ export default async function AdminLayout({
     { href: `/${lang}/admin/reservations`, label: a.nav.reservations },
     { href: `/${lang}/admin/calendar`, label: a.nav.calendar },
     { href: `/${lang}/admin/pricing`, label: a.nav.pricing },
+    { href: `/${lang}/admin/events`, label: a.nav.events },
     { href: `/${lang}/admin/announce`, label: a.nav.announce },
     { href: `/${lang}/admin/partners`, label: a.nav.partners },
     { href: `/${lang}/admin/content`, label: a.nav.content },

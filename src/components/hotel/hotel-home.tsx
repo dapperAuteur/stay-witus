@@ -188,6 +188,7 @@ export async function HotelHome({
                 upcoming={upcoming}
                 timezone={timezone}
                 dict={dict}
+                lang={lang}
               />
             );
           case "concierge":

@@ -42,6 +42,10 @@ export async function checkDomainAction(formData: FormData): Promise<void> {
   const lang = String(formData.get("lang") ?? "en");
   await guard(lang);
   const host = String(formData.get("host") ?? "");
+  // Attach first (idempotent): a DB-seeded mapping may never have reached
+  // Vercel, and without attachment there is no certificate — the exact
+  // failure BAM hit with the demo domain. Verify happens on render.
+  await attachDomain(host).catch(() => null);
   redirect(`/${lang}/platform/domains?host=${encodeURIComponent(host)}`);
 }
 
