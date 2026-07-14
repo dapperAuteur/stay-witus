@@ -27,6 +27,11 @@ import {
   type Audience,
 } from "@/lib/campaigns";
 import { localToday } from "@/lib/admin/today";
+import {
+  issueEditToken,
+  setPartnerStatus,
+  type PartnerStatusAction,
+} from "@/lib/partners";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { promoCodes } from "@/db/schema";
@@ -336,4 +341,34 @@ export async function togglePromoAction(formData: FormData): Promise<void> {
       ),
     );
   backTo(back, "ok", "1");
+}
+
+export async function partnerStatusAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/partners`;
+  const ctx = await guardOr403("manager", lang);
+  const result = await setPartnerStatus(
+    ctx.tenant.id,
+    String(formData.get("partnerId") ?? ""),
+    String(formData.get("statusAction") ?? "") as PartnerStatusAction,
+  );
+  if (!result.ok) backTo(back, "error", result.code);
+  backTo(back, "ok", "1");
+}
+
+export async function issueEditLinkAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/partners`;
+  const ctx = await guardOr403("manager", lang);
+  const h = await headers();
+  const proto = h.get("x-forwarded-proto") ?? "https";
+  const host = h.get("host") ?? "localhost:3000";
+  const result = await issueEditToken(
+    ctx.tenant.id,
+    String(formData.get("partnerId") ?? ""),
+    `${proto}://${host}`,
+    lang,
+  );
+  if (!result.ok) backTo(back, "error", result.code);
+  redirect(`${back}?link=${encodeURIComponent(result.data.url)}`);
 }

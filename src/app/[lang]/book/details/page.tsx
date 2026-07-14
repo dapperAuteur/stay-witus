@@ -145,7 +145,7 @@ export default async function BookDetailsPage({
           </label>
           <input id="promoCode" name="promoCode" autoComplete="off" className={INPUT_CLASSES} />
         </div>
-        {/* DRAFT consent copy (plans/09) — BAM reviews the wording; never pre-checked. */}
+        {/* Consent copy approved by BAM 2026-07-14 (plans/09); never pre-checked. */}
         <label className="flex min-h-11 items-start gap-2 text-sm">
           <input type="checkbox" name="marketingOptIn" value="1" className="mt-1 h-4 w-4" />
           <span>{b.optInLabel}</span>

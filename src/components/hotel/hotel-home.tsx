@@ -191,7 +191,7 @@ export async function HotelHome({
               />
             );
           case "concierge":
-            return <ConciergeSection key={key} approved={approved} dict={dict} />;
+            return <ConciergeSection key={key} approved={approved} dict={dict} lang={lang} />;
           case "guide":
             return <GuideSection key={key} published={spots} dict={dict} />;
           case "tour":

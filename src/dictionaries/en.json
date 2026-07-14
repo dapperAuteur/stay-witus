@@ -206,6 +206,39 @@
     "contactCall": "Call the front desk",
     "contactEmail": "Email"
   },
+  "partnerApply": {
+    "title": "Work with our guests",
+    "intro": "Drivers, guides, food, nightlife, wellness: apply to be recommended to guests. The hotel reviews every application; guests contact you directly.",
+    "nameField": "Your name or business name",
+    "categoryField": "What you offer",
+    "blurbField": "One or two sentences guests should read about you",
+    "phoneField": "Phone (optional)",
+    "whatsappField": "WhatsApp number (international format, +233...)",
+    "emailField": "Email (for your edit link, optional)",
+    "priceField": "Price note, like \"from GHS 120 airport\" (optional)",
+    "coverageField": "Where you operate (optional)",
+    "consentLabel": "I agree to be listed publicly on this hotel's site with the details above.",
+    "submit": "Send application",
+    "sentTitle": "Application received",
+    "sentBody": "The hotel team reviews every application and will be in touch. Thank you.",
+    "errors": {
+      "GENERIC": "That did not work. Please try again.",
+      "INVALID_NAME": "Tell us your name or business name.",
+      "INVALID_CATEGORY": "Pick what kind of service you offer.",
+      "INVALID_WHATSAPP": "WhatsApp numbers need international format, like +233201234567.",
+      "NO_CONTACT": "Give at least one way to reach you.",
+      "NO_CONSENT": "Tick the box to agree to being listed publicly."
+    }
+  },
+  "partnerEdit": {
+    "title": "Update your listing",
+    "intro": "Change what guests see about you. The hotel is notified of updates.",
+    "expiredTitle": "This link has expired",
+    "expiredBody": "Edit links work for 30 days. Ask the hotel team to send you a fresh one.",
+    "save": "Save my listing",
+    "savedTitle": "Listing updated",
+    "savedBody": "Your changes are live. You can keep using this link for 30 days from when it was sent."
+  },
   "setup": {
     "title": "No site is configured for this address",
     "body": "This host is not mapped to a property yet. If you are the site owner, add the domain from your admin dashboard."
@@ -235,7 +268,21 @@
       "team": "Team",
       "content": "Content",
       "guide": "Guide",
-      "announce": "Announce"
+      "announce": "Announce",
+      "partners": "Partners"
+    },
+    "partners": {
+      "intro": "Applications wait at the top. Approve who you trust; suspend hides someone instantly and kills their edit links.",
+      "statuses": { "applied": "Applied", "approved": "Approved", "suspended": "Suspended", "archived": "Archived" },
+      "approve": "Approve",
+      "suspend": "Suspend",
+      "restore": "Re-approve",
+      "archive": "Archive",
+      "sendLink": "Email edit link",
+      "linkIssued": "Edit link created. It was emailed when the partner has an email; either way, copy it below and WhatsApp it to them.",
+      "copyLink": "edit link",
+      "applyUrlHint": "Partners apply themselves at:",
+      "empty": "No partners yet. Share the application link."
     },
     "announce": {
       "intro": "Write once, reach the right guests. Email goes only to people who ticked the offers box when booking; the WhatsApp button is for your own group.",
