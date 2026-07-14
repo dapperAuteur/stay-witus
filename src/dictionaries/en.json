@@ -57,6 +57,7 @@
     "codeLabel": "Your reservation code",
     "keepCode": "Keep this code. It is how you and the property refer to your reservation.",
     "depositPaid": "Deposit paid",
+    "payNow": "Pay the deposit now",
     "notFoundTitle": "Reservation not found",
     "notFoundBody": "Check the link in your confirmation email, or contact the property.",
     "errors": {
@@ -355,7 +356,16 @@
       "sortField": "Position",
       "activeField": "Bookable",
       "save": "Save",
-      "empty": "No room types yet (they are created at seeding for now)."
+      "empty": "No room types yet. Create your first one above.",
+      "createTitle": "New room type",
+      "createButton": "Create room type",
+      "unitsTitle": "Units (physical rooms)",
+      "unitNumberField": "Unit number",
+      "unitFloorField": "Floor",
+      "unitAdd": "Add unit",
+      "unitOn": "activate",
+      "unitOff": "deactivate",
+      "unitDelete": "Delete unit"
     },
     "events": {
       "intro": "Create events, publish them, and watch the RSVP list fill. Announce them to guests from the Announce tab.",

@@ -28,7 +28,14 @@ import {
 } from "@/lib/campaigns";
 import { localToday } from "@/lib/admin/today";
 import { upsertHotelSettings, type HotelSettingsInput } from "@/lib/admin/settings";
-import { removeRoomPhoto, updateRoomType } from "@/lib/rooms";
+import {
+  addUnit,
+  createRoomType,
+  deleteUnitIfClean,
+  removeRoomPhoto,
+  setUnitActive,
+  updateRoomType,
+} from "@/lib/rooms";
 import {
   cancelRsvp,
   createEvent,
@@ -497,5 +504,67 @@ export async function removeRoomPhotoAction(formData: FormData): Promise<void> {
   const back = `/${lang}/admin/rooms`;
   const ctx = await guardOr403("manager", lang);
   await removeRoomPhoto(ctx.tenant.id, String(formData.get("photoId") ?? ""));
+  backTo(back, "ok", "1");
+}
+
+function roomTypeInput(formData: FormData) {
+  const size = Number(formData.get("sizeSqm"));
+  return {
+    name: String(formData.get("name") ?? ""),
+    description: String(formData.get("description") ?? ""),
+    baseRateMinor: Number(formData.get("baseRateMinor") ?? NaN),
+    maxOccupancy: Number(formData.get("maxOccupancy") ?? NaN),
+    bedConfig: String(formData.get("bedConfig") ?? ""),
+    sizeSqm: Number.isInteger(size) && size > 0 ? size : null,
+    sortOrder: Number(formData.get("sortOrder") ?? 0) || 0,
+    isActive: Boolean(formData.get("isActive")),
+  };
+}
+
+export async function createRoomTypeAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/rooms`;
+  const ctx = await guardOr403("manager", lang);
+  const result = await createRoomType(ctx.tenant.id, roomTypeInput(formData));
+  if (!result.ok) backTo(back, "error", result.code);
+  backTo(back, "ok", "1");
+}
+
+export async function addUnitAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/rooms`;
+  const ctx = await guardOr403("manager", lang);
+  const result = await addUnit(
+    ctx.tenant.id,
+    String(formData.get("roomTypeId") ?? ""),
+    String(formData.get("unitNumber") ?? ""),
+    String(formData.get("floor") ?? ""),
+  );
+  if (!result.ok) backTo(back, "error", result.code);
+  backTo(back, "ok", "1");
+}
+
+export async function toggleUnitAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/rooms`;
+  const ctx = await guardOr403("manager", lang);
+  const result = await setUnitActive(
+    ctx.tenant.id,
+    String(formData.get("unitId") ?? ""),
+    formData.get("active") === "1",
+  );
+  if (!result.ok) backTo(back, "error", result.code);
+  backTo(back, "ok", "1");
+}
+
+export async function deleteUnitAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/rooms`;
+  const ctx = await guardOr403("manager", lang);
+  const result = await deleteUnitIfClean(
+    ctx.tenant.id,
+    String(formData.get("unitId") ?? ""),
+  );
+  if (!result.ok) backTo(back, "error", result.code);
   backTo(back, "ok", "1");
 }

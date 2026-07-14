@@ -32,7 +32,7 @@ export function EventsSection({
         {upcoming.map((event) => (
           <li
             key={event.id}
-            className="rounded-xl border border-slate-200 p-5 dark:border-slate-800"
+            className="relative rounded-xl border border-slate-200 p-5 transition-shadow focus-within:ring-2 focus-within:ring-current hover:shadow-md dark:border-slate-800"
           >
             <p
               className="text-sm font-semibold"
@@ -43,7 +43,13 @@ export function EventsSection({
               </time>
             </p>
             <h3 className="mt-1 text-lg font-semibold [font-family:var(--font-heading)]">
-              {event.title}
+              {/* Stretched link: tap anywhere to reach the RSVP (BAM). */}
+              <Link
+                href={`/${lang}/events#ev-${event.id}`}
+                className="after:absolute after:inset-0 focus:outline-none"
+              >
+                {event.title}
+              </Link>
             </h3>
             {event.locationText ? (
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-500">

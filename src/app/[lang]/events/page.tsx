@@ -68,7 +68,8 @@ export default async function EventsPage({
             return (
               <li
                 key={event.id}
-                className="rounded-xl border border-slate-200 p-5 dark:border-slate-800"
+                id={`ev-${event.id}`}
+                className="scroll-mt-20 rounded-xl border border-slate-200 p-5 dark:border-slate-800"
               >
                 <p className="text-sm font-semibold" style={{ color: "var(--brand-accent)" }}>
                   <time dateTime={event.startsAt.toISOString()}>

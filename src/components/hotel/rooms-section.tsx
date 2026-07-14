@@ -36,24 +36,23 @@ export function RoomsSection({
         {rooms.map((room) => (
           <li
             key={room.id}
-            className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800"
+            className="relative overflow-hidden rounded-xl border border-slate-200 transition-shadow focus-within:ring-2 focus-within:ring-current hover:shadow-md dark:border-slate-800"
           >
             {thumbnails.get(room.id) ? (
-              <Link href={`/${lang}/rooms/${room.slug}`} tabIndex={-1} aria-hidden="true">
-                {/* eslint-disable-next-line @next/next/no-img-element -- Cloudinary f_auto/q_auto */}
-                <img
-                  src={thumbnails.get(room.id)?.url}
-                  alt=""
-                  className="h-44 w-full object-cover"
-                />
-              </Link>
+              /* eslint-disable-next-line @next/next/no-img-element -- Cloudinary f_auto/q_auto */
+              <img
+                src={thumbnails.get(room.id)?.url}
+                alt=""
+                className="h-44 w-full object-cover"
+              />
             ) : null}
             <div className="p-5">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h3 className="text-lg font-semibold [font-family:var(--font-heading)]">
+                {/* Stretched link: the whole card is the button (BAM). */}
                 <Link
                   href={`/${lang}/rooms/${room.slug}`}
-                  className="underline-offset-4 hover:underline focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                  className="after:absolute after:inset-0 focus:outline-none"
                 >
                   {room.name}
                 </Link>
