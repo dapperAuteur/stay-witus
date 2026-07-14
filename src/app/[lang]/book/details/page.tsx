@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cancellationPolicyText } from "@/lib/booking/policy";
 import { getHoldSummary } from "@/lib/booking/summaries";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
 import { formatMoneyMinor } from "@/lib/money";
@@ -54,6 +55,12 @@ export default async function BookDetailsPage({
     );
   }
   const s = summary.data;
+  const policyText = cancellationPolicyText(s.cancellationPolicy, {
+    freeUntil: b.policyFreeUntil,
+    freeAlways: b.policyFreeAlways,
+    penaltyAfter: b.policyPenaltyAfter,
+    nonRefundable: b.policyNonRefundable,
+  });
   const errorText =
     error && error in b.errors ? b.errors[error as keyof typeof b.errors] : null;
 
@@ -92,6 +99,11 @@ export default async function BookDetailsPage({
         <p role="status" className="mt-3 text-xs text-slate-500">
           {b.holdNotice}
         </p>
+        {policyText ? (
+          <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">
+            <strong>{b.policyTitle}:</strong> {policyText}
+          </p>
+        ) : null}
       </section>
 
       {errorText ? (

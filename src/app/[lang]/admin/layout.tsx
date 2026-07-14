@@ -27,6 +27,7 @@ export default async function AdminLayout({
     { href: `/${lang}/admin`, label: a.nav.today },
     { href: `/${lang}/admin/reservations`, label: a.nav.reservations },
     { href: `/${lang}/admin/calendar`, label: a.nav.calendar },
+    { href: `/${lang}/admin/rooms`, label: a.nav.rooms },
     { href: `/${lang}/admin/pricing`, label: a.nav.pricing },
     { href: `/${lang}/admin/events`, label: a.nav.events },
     { href: `/${lang}/admin/announce`, label: a.nav.announce },
@@ -35,6 +36,7 @@ export default async function AdminLayout({
     { href: `/${lang}/admin/guide`, label: a.nav.guide },
     { href: `/${lang}/admin/design`, label: a.nav.design },
     { href: `/${lang}/admin/team`, label: a.nav.team },
+    { href: `/${lang}/admin/settings`, label: a.nav.settings },
   ];
 
   return (
