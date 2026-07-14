@@ -6,6 +6,7 @@ import { getReservationSummaryByCode } from "@/lib/booking/summaries";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
 import { formatMoneyMinor } from "@/lib/money";
 import { resolveTenant } from "@/lib/tenant";
+import { payNowAction } from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -118,6 +119,20 @@ export default async function BookDonePage({
           ) : null}
         </dl>
       </section>
+
+      {r.status === "pending_payment" && r.paymentStatus === "unpaid" ? (
+        <form action={payNowAction} className="mt-6">
+          <input type="hidden" name="lang" value={lang} />
+          <input type="hidden" name="code" value={r.code} />
+          <button
+            type="submit"
+            className="inline-flex min-h-12 items-center rounded-full px-6 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+            style={{ background: "var(--brand-accent)", color: "var(--brand-accent-fg)" }}
+          >
+            {b.payNow}
+          </button>
+        </form>
+      ) : null}
 
       {policyText ? (
         <p className="mt-4 text-xs text-slate-600 dark:text-slate-400">

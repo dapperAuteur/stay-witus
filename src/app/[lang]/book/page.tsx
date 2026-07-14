@@ -108,7 +108,7 @@ export default async function BookPage({
             {results.data.map((room) => (
               <li
                 key={room.roomTypeId}
-                className="flex flex-wrap gap-4 rounded-xl border border-slate-200 p-5 dark:border-slate-800"
+                className="relative flex flex-wrap gap-4 rounded-xl border border-slate-200 p-5 transition-shadow focus-within:ring-2 focus-within:ring-current hover:shadow-md dark:border-slate-800"
               >
                 {thumbnails.get(room.roomTypeId) ? (
                   /* eslint-disable-next-line @next/next/no-img-element -- Cloudinary f_auto/q_auto */
@@ -121,9 +121,10 @@ export default async function BookPage({
                 <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <h2 className="text-lg font-semibold [font-family:var(--font-heading)]">
+                    {/* Stretched link: the whole card opens the room (BAM). */}
                     <Link
                       href={`/${lang}/rooms/${room.slug}?checkIn=${encodeURIComponent(checkIn ?? "")}&checkOut=${encodeURIComponent(checkOut ?? "")}`}
-                      className="underline-offset-4 hover:underline focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                      className="after:absolute after:inset-0 focus:outline-none"
                     >
                       {room.name}
                     </Link>
@@ -147,7 +148,8 @@ export default async function BookPage({
                   {dict.sections.roomsSleeps} {room.maxOccupancy}
                 </p>
                 {room.freeUnits > 0 ? (
-                  <form action={holdRoomAction} className="mt-4">
+                  // relative z-10: above the stretched overlay so Reserve stays tappable
+                  <form action={holdRoomAction} className="relative z-10 mt-4 w-fit">
                     <input type="hidden" name="lang" value={lang} />
                     <input type="hidden" name="roomTypeId" value={room.roomTypeId} />
                     <input type="hidden" name="checkIn" value={checkIn} />

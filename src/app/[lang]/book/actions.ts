@@ -4,6 +4,9 @@ import { randomUUID } from "node:crypto";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createHold, confirmHold } from "@/lib/booking/holds";
+import { and, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { reservations } from "@/db/schema";
 import { initiateReservationPayment } from "@/lib/payments/reservation-payments";
 import { resolveTenant } from "@/lib/tenant";
 
@@ -105,6 +108,38 @@ export async function confirmBookingAction(formData: FormData): Promise<void> {
   });
   if (!payment.ok) {
     // Reservation stands (pending payment); the done page explains next steps.
+    redirect(`${done}&pay=${encodeURIComponent(payment.code)}`);
+  }
+  redirect(payment.data.checkoutUrl);
+}
+
+/** Pay-now retry from the confirmation page (recovery emails land here). */
+export async function payNowAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const code = String(formData.get("code") ?? "");
+  const done = `/${lang}/book/done?code=${encodeURIComponent(code)}`;
+
+  const tenant = await resolveTenant().catch(() => null);
+  if (!tenant || tenant.flags.platform) redirect(`/${lang}`);
+
+  const [reservation] = await db()
+    .select({ id: reservations.id, status: reservations.status })
+    .from(reservations)
+    .where(and(eq(reservations.code, code), eq(reservations.tenantId, tenant.id)))
+    .limit(1);
+  if (!reservation || reservation.status !== "pending_payment") {
+    redirect(done);
+  }
+
+  const h = await headers();
+  const host = h.get("host") ?? "localhost:3000";
+  const proto = h.get("x-forwarded-proto") ?? "https";
+  const payment = await initiateReservationPayment({
+    tenant,
+    reservationId: reservation.id,
+    callbackUrl: `${proto}://${host}${done}`,
+  });
+  if (!payment.ok) {
     redirect(`${done}&pay=${encodeURIComponent(payment.code)}`);
   }
   redirect(payment.data.checkoutUrl);

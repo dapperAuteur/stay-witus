@@ -6,6 +6,8 @@ import {
   roomTypeAmenities,
   roomTypePhotos,
   roomTypes,
+  roomUnits,
+  unitClaims,
 } from "@/db/schema";
 import { deliveryUrl } from "@/lib/media/cloudinary";
 import { err, ok, type Result } from "@/lib/result";
@@ -108,11 +110,146 @@ export async function listRoomTypesWithPhotos(tenantId: string) {
     .from(roomTypes)
     .where(eq(roomTypes.tenantId, tenantId))
     .orderBy(asc(roomTypes.sortOrder), asc(roomTypes.name));
-  const photos = await photosForRoomTypes(
-    types.map((t) => t.id),
-    320,
+  const [photos, units] = await Promise.all([
+    photosForRoomTypes(
+      types.map((t) => t.id),
+      320,
+    ),
+    types.length > 0
+      ? db()
+          .select()
+          .from(roomUnits)
+          .where(
+            inArray(
+              roomUnits.roomTypeId,
+              types.map((t) => t.id),
+            ),
+          )
+          .orderBy(asc(roomUnits.unitNumber))
+      : Promise.resolve([]),
+  ]);
+  const unitsByType = new Map<string, typeof units>();
+  for (const unit of units) {
+    const list = unitsByType.get(unit.roomTypeId) ?? [];
+    list.push(unit);
+    unitsByType.set(unit.roomTypeId, list);
+  }
+  return types.map((t) => ({
+    ...t,
+    photos: photos.get(t.id) ?? [],
+    units: unitsByType.get(t.id) ?? [],
+  }));
+}
+
+function slugifyRoom(name: string): string {
+  return (
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 40) || "room"
   );
-  return types.map((t) => ({ ...t, photos: photos.get(t.id) ?? [] }));
+}
+
+export async function createRoomType(
+  tenantId: string,
+  input: RoomTypeEdit,
+): Promise<Result<{ id: string }>> {
+  if (!input.name.trim()) return err("INVALID_NAME", "Give the room a name.");
+  if (!Number.isInteger(input.baseRateMinor) || input.baseRateMinor <= 0) {
+    return err("INVALID_RATE", "Base rate must be a positive pesewa amount.");
+  }
+  const base = slugifyRoom(input.name);
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const slug = attempt === 0 ? base : `${base}-${attempt + 1}`;
+    try {
+      const [row] = await db()
+        .insert(roomTypes)
+        .values({
+          tenantId,
+          slug,
+          name: input.name.trim(),
+          description: input.description.trim() || null,
+          baseRateMinor: input.baseRateMinor,
+          maxOccupancy: input.maxOccupancy,
+          bedConfig: input.bedConfig.trim() || null,
+          sizeSqm: input.sizeSqm,
+          sortOrder: input.sortOrder,
+          isActive: input.isActive,
+        })
+        .returning({ id: roomTypes.id });
+      return ok({ id: row.id });
+    } catch (error) {
+      const code = (error as { code?: string })?.code;
+      if (code !== "23505" || attempt === 3) throw error;
+    }
+  }
+  return err("GENERIC", "Could not create the room type.");
+}
+
+export async function addUnit(
+  tenantId: string,
+  roomTypeId: string,
+  unitNumber: string,
+  floor: string,
+): Promise<Result<{ id: string }>> {
+  const number = unitNumber.trim();
+  if (!number) return err("INVALID_UNIT", "Give the unit a number or name.");
+  const [roomType] = await db()
+    .select({ id: roomTypes.id })
+    .from(roomTypes)
+    .where(and(eq(roomTypes.id, roomTypeId), eq(roomTypes.tenantId, tenantId)))
+    .limit(1);
+  if (!roomType) return err("NOT_FOUND", "Room type not found.");
+  try {
+    const [row] = await db()
+      .insert(roomUnits)
+      .values({ tenantId, roomTypeId, unitNumber: number, floor: floor.trim() || null })
+      .returning({ id: roomUnits.id });
+    return ok({ id: row.id });
+  } catch (error) {
+    if ((error as { code?: string })?.code === "23505") {
+      return err("UNIT_EXISTS", "That unit number already exists for this room type.");
+    }
+    throw error;
+  }
+}
+
+export async function setUnitActive(
+  tenantId: string,
+  unitId: string,
+  isActive: boolean,
+): Promise<Result<{ updated: boolean }>> {
+  const rows = await db()
+    .update(roomUnits)
+    .set({ isActive })
+    .where(and(eq(roomUnits.id, unitId), eq(roomUnits.tenantId, tenantId)))
+    .returning({ id: roomUnits.id });
+  if (rows.length === 0) return err("NOT_FOUND", "Unit not found.");
+  return ok({ updated: true });
+}
+
+/**
+ * Deleting a unit cascades its claims (= booking history), so deletion is
+ * allowed ONLY for units that never held a claim; otherwise deactivate.
+ */
+export async function deleteUnitIfClean(
+  tenantId: string,
+  unitId: string,
+): Promise<Result<{ deleted: boolean }>> {
+  const [claim] = await db()
+    .select({ id: unitClaims.id })
+    .from(unitClaims)
+    .where(eq(unitClaims.unitId, unitId))
+    .limit(1);
+  if (claim) {
+    return err("UNIT_HAS_HISTORY", "This unit has booking history. Deactivate it instead.");
+  }
+  const rows = await db()
+    .delete(roomUnits)
+    .where(and(eq(roomUnits.id, unitId), eq(roomUnits.tenantId, tenantId)))
+    .returning({ id: roomUnits.id });
+  return ok({ deleted: rows.length > 0 });
 }
 
 export interface RoomTypeEdit {
