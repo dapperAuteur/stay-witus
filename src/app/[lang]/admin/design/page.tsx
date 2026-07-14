@@ -9,6 +9,7 @@ import {
   SECTION_KEYS,
   SECTION_VARIANTS,
 } from "@/lib/sections";
+import { DEFAULT_TEMPLATE_KEY, TEMPLATES } from "@/lib/templates";
 import { saveDesignAction } from "../actions";
 import { Flash } from "../flash";
 
@@ -65,6 +66,35 @@ export default async function AdminDesignPage({
 
       <form action={saveDesignAction} className="mt-6 flex flex-col gap-8">
         <input type="hidden" name="lang" value={lang} />
+
+        <fieldset>
+          <legend className="text-lg font-semibold">{a.template}</legend>
+          <p className="mt-1 text-xs text-slate-500">{a.templateHint}</p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+            {Object.keys(TEMPLATES).map((key) => (
+              <label
+                key={key}
+                className="flex min-h-11 cursor-pointer flex-col gap-1 rounded-xl border border-slate-300 p-4 dark:border-slate-700"
+              >
+                <span className="inline-flex items-center gap-2 font-semibold">
+                  <input
+                    type="radio"
+                    name="templateKey"
+                    value={key}
+                    defaultChecked={
+                      (tenant.theme.templateKey ?? DEFAULT_TEMPLATE_KEY) === key
+                    }
+                    className="h-4 w-4"
+                  />
+                  {a.templates[key as keyof typeof a.templates].name}
+                </span>
+                <span className="text-xs text-slate-500">
+                  {a.templates[key as keyof typeof a.templates].blurb}
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
         <fieldset>
           <legend className="text-lg font-semibold">{a.preset}</legend>

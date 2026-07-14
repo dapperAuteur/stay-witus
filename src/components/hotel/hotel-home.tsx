@@ -11,6 +11,7 @@ import {
 import type { Dictionary } from "@/lib/dictionaries";
 import { latestPublishedAnnouncement } from "@/lib/campaigns";
 import { thumbnailsForRoomTypes } from "@/lib/rooms";
+import { BAND_TINT, templateFor } from "@/lib/templates";
 import { resolveSectionConfig, type SectionKey } from "@/lib/sections";
 import type { TenantRecord } from "@/lib/tenant";
 import { ConciergeSection } from "./concierge-section";
@@ -44,6 +45,7 @@ export async function HotelHome({
   lang: string;
 }) {
   const config = resolveSectionConfig(tenant.theme, tenant.flags);
+  const tpl = templateFor(tenant.theme.templateKey);
   const need = new Set(config.order);
 
   const wantedSiteKeys = config.order
@@ -126,25 +128,8 @@ export async function HotelHome({
   const settings = settingsRows[0];
   const timezone = settings?.timezone ?? "Africa/Accra";
 
-  return (
-    <main className="mx-auto max-w-4xl px-4 py-10">
-      {announcement ? (
-        <aside
-          role={announcement.urgency === "urgent" ? "alert" : "status"}
-          className={`mb-6 rounded-xl border p-4 text-sm ${
-            announcement.urgency === "urgent"
-              ? "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200"
-              : "border-slate-200 dark:border-slate-800"
-          }`}
-        >
-          <p className="font-semibold">{announcement.title}</p>
-          <p className="mt-1 whitespace-pre-line text-slate-700 dark:text-slate-300">
-            {announcement.body}
-          </p>
-        </aside>
-      ) : null}
-      {config.order.map((key) => {
-        switch (key) {
+  const renderSection = (key: SectionKey) => {
+    switch (key) {
           case "hero":
             return (
               <HeroSection
@@ -154,6 +139,7 @@ export async function HotelHome({
                 variant={config.variants.hero}
                 dict={dict}
                 lang={lang}
+                tpl={tpl}
               />
             );
           case "about":
@@ -163,6 +149,7 @@ export async function HotelHome({
                 id="about"
                 fallbackTitle={dict.sections.aboutTitle}
                 row={byKey.get("about")}
+                tpl={tpl}
               />
             );
           case "rooms":
@@ -174,6 +161,7 @@ export async function HotelHome({
                 dict={dict}
                 lang={lang}
                 thumbnails={roomThumbnails}
+                tpl={tpl}
               />
             );
           case "dining":
@@ -183,6 +171,7 @@ export async function HotelHome({
                 id="dining"
                 fallbackTitle={dict.sections.diningTitle}
                 row={byKey.get("dining")}
+                tpl={tpl}
               />
             );
           case "events":
@@ -193,19 +182,58 @@ export async function HotelHome({
                 timezone={timezone}
                 dict={dict}
                 lang={lang}
+                tpl={tpl}
               />
             );
           case "concierge":
-            return <ConciergeSection key={key} approved={approved} dict={dict} lang={lang} />;
+            return <ConciergeSection key={key} approved={approved} dict={dict} lang={lang} tpl={tpl} />;
           case "guide":
-            return <GuideSection key={key} published={spots} dict={dict} />;
+            return <GuideSection key={key} published={spots} dict={dict} tpl={tpl} />;
           case "tour":
             return (
-              <TourSection key={key} row={byKey.get("virtual_tour")} dict={dict} />
+              <TourSection key={key} row={byKey.get("virtual_tour")} dict={dict} tpl={tpl} />
             );
           case "contact":
-            return <ContactSection key={key} settings={settings} dict={dict} />;
+            return (
+              <ContactSection key={key} settings={settings} dict={dict} tpl={tpl} />
+            );
+    }
+  };
+
+  return (
+    <main className={`pb-10 ${tpl.t.page}`}>
+      {announcement ? (
+        <div className="mx-auto max-w-4xl px-4 pt-6">
+          <aside
+            role={announcement.urgency === "urgent" ? "alert" : "status"}
+            className={`rounded-xl border p-4 text-sm ${
+              announcement.urgency === "urgent"
+                ? "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200"
+                : "border-slate-200 dark:border-slate-800"
+            }`}
+          >
+            <p className="font-semibold">{announcement.title}</p>
+            <p className="mt-1 whitespace-pre-line text-slate-700 dark:text-slate-300">
+              {announcement.body}
+            </p>
+          </aside>
+        </div>
+      ) : null}
+      {config.order.map((key, index) => {
+        const section = renderSection(key);
+        if (!section) return null;
+        // Full-bleed hero escapes the content container entirely.
+        if (key === "hero" && tpl.hero === "fullbleed") {
+          return <div key={key}>{section}</div>;
         }
+        const banded = tpl.bands && index % 2 === 1;
+        return (
+          <div key={key} style={banded ? { background: BAND_TINT } : undefined}>
+            <div className={`mx-auto max-w-4xl px-4 ${tpl.bands ? "" : "pt-0"}`}>
+              {section}
+            </div>
+          </div>
+        );
       })}
     </main>
   );

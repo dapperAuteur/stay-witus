@@ -43,7 +43,7 @@ export async function ensureDemoTenant(): Promise<string> {
       name: "BAM Hotel",
       tagline: "Your rooftop home in Osu, Accra",
       flags: { dining: true, events: true, concierge: true, poweredBy: true },
-      theme: { presetKey: "atlantic", fontPairKey: "classic" },
+      theme: { presetKey: "atlantic", fontPairKey: "classic", templateKey: "editorial" },
       payment: {},
     })
     .onConflictDoUpdate({
@@ -53,7 +53,7 @@ export async function ensureDemoTenant(): Promise<string> {
         tagline: "Your rooftop home in Osu, Accra",
         // Reset undoes demo-admin design/flag experiments too.
         flags: { dining: true, events: true, concierge: true, poweredBy: true },
-        theme: { presetKey: "atlantic", fontPairKey: "classic" },
+        theme: { presetKey: "atlantic", fontPairKey: "classic", templateKey: "editorial" },
         updatedAt: new Date(),
       },
     })

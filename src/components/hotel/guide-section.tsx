@@ -1,5 +1,6 @@
 import type { attractions } from "@/db/schema";
 import type { Dictionary } from "@/lib/dictionaries";
+import type { TemplateDef } from "@/lib/templates";
 import { SectionShell } from "./section-shell";
 
 type AttractionRow = typeof attractions.$inferSelect;
@@ -7,20 +8,22 @@ type AttractionRow = typeof attractions.$inferSelect;
 export function GuideSection({
   published,
   dict,
+  tpl,
 }: {
   published: AttractionRow[];
   dict: Dictionary;
+  tpl: TemplateDef;
 }) {
   if (published.length === 0) return null;
   const s = dict.sections;
 
   return (
-    <SectionShell id="guide" title={s.guideTitle}>
+    <SectionShell tpl={tpl} id="guide" title={s.guideTitle}>
       <ul className="grid gap-4 sm:grid-cols-2">
         {published.map((spot) => (
           <li
             key={spot.id}
-            className="rounded-xl border border-slate-200 p-5 dark:border-slate-800"
+            className={`${tpl.t.card} p-5`}
           >
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-500">
               {spot.zone === "walkable" ? s.guideWalkable : s.guideDayTrip}

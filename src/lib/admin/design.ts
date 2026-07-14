@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { tenants, type TenantTheme } from "@/db/schema";
 import { normalizeBrandPreset } from "@/lib/brand-presets";
 import { normalizeFontPair } from "@/lib/font-pairs";
+import { normalizeTemplate } from "@/lib/templates";
 import {
   normalizeSectionVariant,
   SECTION_KEYS,
@@ -15,6 +16,7 @@ import { err, ok, type Result } from "@/lib/result";
 // unknown keys collapse to defaults, never to an error page or stored junk.
 
 export interface DesignUpdateInput {
+  templateKey?: string;
   presetKey?: string;
   fontPairKey?: string;
   sectionOrder?: string[];
@@ -29,6 +31,9 @@ function isSectionKey(value: string): value is SectionKey {
 export function normalizeDesignInput(input: DesignUpdateInput): Partial<TenantTheme> {
   const patch: Partial<TenantTheme> = {};
 
+  if (input.templateKey !== undefined) {
+    patch.templateKey = normalizeTemplate(input.templateKey) ?? undefined;
+  }
   if (input.presetKey !== undefined) {
     patch.presetKey = normalizeBrandPreset(input.presetKey) ?? undefined;
   }

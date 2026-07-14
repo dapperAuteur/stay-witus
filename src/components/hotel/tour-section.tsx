@@ -1,6 +1,7 @@
 import type { siteSections } from "@/db/schema";
 import type { Dictionary } from "@/lib/dictionaries";
 import { Paragraphs } from "./paragraphs";
+import type { TemplateDef } from "@/lib/templates";
 import { SectionShell } from "./section-shell";
 
 type SiteSectionRow = typeof siteSections.$inferSelect;
@@ -9,16 +10,18 @@ type SiteSectionRow = typeof siteSections.$inferSelect;
 export function TourSection({
   row,
   dict,
+  tpl,
 }: {
   row: SiteSectionRow | undefined;
   dict: Dictionary;
+  tpl: TemplateDef;
 }) {
   const data = (row?.data ?? {}) as { embedUrl?: string };
   if (!row || !data.embedUrl) return null;
   const s = dict.sections;
 
   return (
-    <SectionShell id="tour" title={row.title ?? s.tourTitle}>
+    <SectionShell tpl={tpl} id="tour" title={row.title ?? s.tourTitle}>
       {row.body ? (
         <div className="max-w-2xl">
           <Paragraphs text={row.body} />

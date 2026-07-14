@@ -576,6 +576,13 @@
     },
     "design": {
       "intro": "Arrange your homepage. Everything here stays inside layouts we designed, so your site keeps working on every phone.",
+      "template": "Template",
+      "templateHint": "The overall design system. Colors, fonts, sections, and photos stay yours in every template.",
+      "templates": {
+        "classic": { "name": "Classic", "blurb": "Compact and quietly competent. Cards, borders, clarity." },
+        "editorial": { "name": "Editorial Boutique", "blurb": "Photography-first. Full-screen hero, big serif headlines, magazine rhythm." },
+        "warm": { "name": "Warm Minimal", "blurb": "Soft, rounded, borderless. Feels like a friendly lobby." }
+      },
       "preset": "Color preset",
       "fontPair": "Font pairing",
       "sections": "Homepage sections",

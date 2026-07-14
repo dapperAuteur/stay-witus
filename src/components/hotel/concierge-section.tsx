@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { partners } from "@/db/schema";
 import type { Dictionary } from "@/lib/dictionaries";
+import type { TemplateDef } from "@/lib/templates";
 import { SectionShell } from "./section-shell";
 
 type PartnerRow = typeof partners.$inferSelect;
@@ -13,21 +14,23 @@ export function ConciergeSection({
   approved,
   dict,
   lang,
+  tpl,
 }: {
   approved: PartnerRow[];
   dict: Dictionary;
   lang: string;
+  tpl: TemplateDef;
 }) {
   if (approved.length === 0) return null;
   const s = dict.sections;
 
   return (
-    <SectionShell id="concierge" title={s.conciergeTitle}>
+    <SectionShell tpl={tpl} id="concierge" title={s.conciergeTitle}>
       <ul className="grid gap-4 sm:grid-cols-2">
         {approved.map((partner) => (
           <li
             key={partner.id}
-            className="flex flex-col rounded-xl border border-slate-200 p-5 dark:border-slate-800"
+            className={`flex flex-col ${tpl.t.card} p-5`}
           >
             <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-500">
               {s.partnerCategories[partner.category]}
