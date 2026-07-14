@@ -7,11 +7,12 @@ import { randomUUID } from "node:crypto";
 import { and, eq, isNull } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { db } from "@/db";
-import { roomTypes, roomUnits, tenants, unitClaims } from "@/db/schema";
+import { roomTypes, roomUnits, tenantMemberships, tenants, unitClaims, users } from "@/db/schema";
 import { createBlockout, getUnitMonth, releaseBlockout } from "./blockouts";
 import { createRateOverride, deleteRateOverride, getPricingMonth } from "./pricing";
 import { listReservations, transitionReservation } from "./reservations";
 import { getTodayBoard, localToday } from "./today";
+import { acceptStaffInvite, createStaffInvite } from "./invites";
 import { addDays } from "@/lib/booking/dates";
 import { confirmHold, createHold } from "@/lib/booking/holds";
 
@@ -44,6 +45,7 @@ describe.skipIf(!hasDb)("admin surfaces against Neon", () => {
 
   afterAll(async () => {
     if (tenantId) await db().delete(tenants).where(eq(tenants.id, tenantId));
+    await db().delete(users).where(eq(users.id, "itest-invitee"));
   });
 
   it("blockout collides with a live booking, then works once cancelled", async () => {
@@ -207,5 +209,53 @@ describe.skipIf(!hasDb)("admin surfaces against Neon", () => {
     if (!board.ok) return;
     expect(board.data.arrivals.some((r) => r.guestName === "Arrival Test")).toBe(true);
     expect(board.data.pendingPaymentCount).toBeGreaterThanOrEqual(1);
+  });
+
+  it("invite lifecycle: email must match, single use, membership created", async () => {
+    await db()
+      .insert(users)
+      .values({ id: "itest-invitee", email: "invitee@example.com" })
+      .onConflictDoNothing();
+
+    const invite = await createStaffInvite({
+      tenantId,
+      email: "Invitee@Example.com",
+      role: "front_desk",
+      invitedBy: "itest-invitee",
+      acceptUrlBase: "http://localhost:3000/en/invite",
+    });
+    expect(invite.ok).toBe(true);
+
+    const { staffInvites } = await import("@/db/schema");
+    const [row] = await db()
+      .select({ token: staffInvites.token })
+      .from(staffInvites)
+      .where(eq(staffInvites.tenantId, tenantId));
+
+    // Wrong account is rejected before any membership write.
+    const wrong = await acceptStaffInvite(row.token, {
+      id: "someone-else",
+      email: "other@example.com",
+    });
+    expect(wrong).toMatchObject({ ok: false, code: "WRONG_ACCOUNT" });
+
+    const accepted = await acceptStaffInvite(row.token, {
+      id: "itest-invitee",
+      email: "invitee@example.com",
+    });
+    expect(accepted).toMatchObject({ ok: true, data: { role: "front_desk" } });
+
+    const [membership] = await db()
+      .select({ role: tenantMemberships.role })
+      .from(tenantMemberships)
+      .where(eq(tenantMemberships.userId, "itest-invitee"));
+    expect(membership.role).toBe("front_desk");
+
+    // Single use.
+    const replay = await acceptStaffInvite(row.token, {
+      id: "itest-invitee",
+      email: "invitee@example.com",
+    });
+    expect(replay).toMatchObject({ ok: false, code: "INVITE_INVALID" });
   });
 });

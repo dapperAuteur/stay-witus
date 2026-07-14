@@ -218,7 +218,32 @@
       "reservations": "Reservations",
       "calendar": "Calendar",
       "pricing": "Pricing",
-      "design": "Design"
+      "design": "Design",
+      "team": "Team"
+    },
+    "team": {
+      "members": "Team",
+      "noMembers": "No staff yet.",
+      "pending": "Pending invites",
+      "noPending": "No pending invites.",
+      "inviteTitle": "Invite a team member",
+      "emailLabel": "Email address",
+      "roleField": "Role",
+      "roles": {
+        "front_desk": "Front desk",
+        "manager": "Manager",
+        "owner": "Owner"
+      },
+      "send": "Send invite",
+      "revoke": "Revoke"
+    },
+    "invite": {
+      "title": "Join the team",
+      "body": "You have been invited to help run",
+      "signedInAs": "You are signed in as",
+      "accept": "Accept invitation",
+      "wrongAccount": "This invite was sent to a different email address. Sign in with that address to accept it.",
+      "invalid": "This invite has expired or was already used. Ask for a new one."
     },
     "today": {
       "arrivals": "Arriving today",

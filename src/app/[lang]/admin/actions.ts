@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createBlockout, releaseBlockout } from "@/lib/admin/blockouts";
+import { createStaffInvite, revokeStaffInvite } from "@/lib/admin/invites";
 import { updateTenantDesign } from "@/lib/admin/design";
 import { getStaffContext, type StaffContext } from "@/lib/admin/guard";
 import { createRateOverride, deleteRateOverride } from "@/lib/admin/pricing";
@@ -10,6 +11,7 @@ import {
   type ReservationAction,
 } from "@/lib/admin/reservations";
 import { addDays } from "@/lib/booking/dates";
+import { headers } from "next/headers";
 import { SECTION_KEYS } from "@/lib/sections";
 import type { TenantRole } from "@/db/schema";
 
@@ -126,4 +128,30 @@ export async function saveDesignAction(formData: FormData): Promise<void> {
   });
   if (!result.ok) backTo(back, "error", result.code);
   backTo(back, "ok", "saved");
+}
+
+export async function inviteStaffAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = String(formData.get("back") ?? `/${lang}/admin/team`);
+  const ctx = await guardOr403("owner", lang);
+  const h = await headers();
+  const host = h.get("host") ?? "localhost:3000";
+  const proto = h.get("x-forwarded-proto") ?? "https";
+  const result = await createStaffInvite({
+    tenantId: ctx.tenant.id,
+    email: String(formData.get("email") ?? ""),
+    role: String(formData.get("role") ?? "front_desk") as never,
+    invitedBy: ctx.user.id,
+    acceptUrlBase: `${proto}://${host}/${lang}/invite`,
+  });
+  if (!result.ok) backTo(back, "error", result.code);
+  backTo(back, "ok", "1");
+}
+
+export async function revokeInviteAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = String(formData.get("back") ?? `/${lang}/admin/team`);
+  const ctx = await guardOr403("owner", lang);
+  await revokeStaffInvite(ctx.tenant.id, String(formData.get("inviteId") ?? ""));
+  backTo(back, "ok", "1");
 }
