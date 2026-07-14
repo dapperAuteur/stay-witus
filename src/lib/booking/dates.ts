@@ -83,3 +83,42 @@ export function validateStay(
   }
   return ok({ nights });
 }
+
+// ── Month helpers (admin calendars) ──────────────────────────────────────────
+
+const ISO_MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
+
+export function isIsoMonth(value: string): boolean {
+  return ISO_MONTH.test(value);
+}
+
+/** "2026-12" → its first day. */
+export function monthStart(month: string): string {
+  return `${month}-01`;
+}
+
+/** First day of the following month (half-open month ranges). */
+export function nextMonthStart(month: string): string {
+  const [y, m] = month.split("-").map(Number);
+  return m === 12
+    ? `${y + 1}-01-01`
+    : `${y}-${String(m + 1).padStart(2, "0")}-01`;
+}
+
+/** Every date of the month, in order. */
+export function monthDays(month: string): string[] {
+  return eachNight(monthStart(month), nextMonthStart(month));
+}
+
+/** The month ("YYYY-MM") a date belongs to. */
+export function monthOf(date: string): string {
+  return date.slice(0, 7);
+}
+
+export function addMonths(month: string, delta: number): string {
+  const [y, m] = month.split("-").map(Number);
+  const total = y * 12 + (m - 1) + delta;
+  const ny = Math.floor(total / 12);
+  const nm = (total % 12) + 1;
+  return `${ny}-${String(nm).padStart(2, "0")}`;
+}

@@ -45,6 +45,7 @@ src/lib/booking/    availability, rates, holds, summaries (engine; DB-backstoppe
 src/lib/payments/   PaymentProvider interface + Paystack (per-tenant webhook)
 src/lib/            env, result envelope, tenant/rbac, auth, mailer, sections, fonts
 src/app/[lang]/     tenant pages: sectioned homepage, /book flow, /sign-in,
+                    /admin (staff: today/reservations/calendar/pricing/design),
                     /roadmap (platform), /platform (BAM's dashboard)
 plans/user-tasks/   BAM's operator queue (NN-describe.md + 00 index)
 ```
