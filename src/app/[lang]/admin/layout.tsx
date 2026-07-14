@@ -37,6 +37,10 @@ export default async function AdminLayout({
     { href: `/${lang}/admin/design`, label: a.nav.design },
     { href: `/${lang}/admin/team`, label: a.nav.team },
     { href: `/${lang}/admin/settings`, label: a.nav.settings },
+    // Platform invoices are the owner's business only.
+    ...(role === "owner"
+      ? [{ href: `/${lang}/admin/billing`, label: a.nav.billing }]
+      : []),
   ];
 
   return (

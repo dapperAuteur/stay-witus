@@ -28,6 +28,7 @@ import {
 } from "@/lib/campaigns";
 import { localToday } from "@/lib/admin/today";
 import { upsertHotelSettings, type HotelSettingsInput } from "@/lib/admin/settings";
+import { claimMomoInvoice } from "@/lib/platform/billing";
 import {
   addUnit,
   createRoomType,
@@ -567,5 +568,13 @@ export async function deleteUnitAction(formData: FormData): Promise<void> {
     String(formData.get("unitId") ?? ""),
   );
   if (!result.ok) backTo(back, "error", result.code);
+  backTo(back, "ok", "1");
+}
+
+export async function claimInvoiceAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/billing`;
+  const ctx = await guardOr403("owner", lang);
+  await claimMomoInvoice(ctx.tenant.id, String(formData.get("invoiceId") ?? ""));
   backTo(back, "ok", "1");
 }

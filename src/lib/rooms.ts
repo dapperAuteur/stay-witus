@@ -1,4 +1,5 @@
 import { and, asc, eq, inArray } from "drizzle-orm";
+import { pgErrorCode } from "@/lib/booking/holds";
 import { db } from "@/db";
 import {
   amenities,
@@ -180,8 +181,7 @@ export async function createRoomType(
         .returning({ id: roomTypes.id });
       return ok({ id: row.id });
     } catch (error) {
-      const code = (error as { code?: string })?.code;
-      if (code !== "23505" || attempt === 3) throw error;
+      if (pgErrorCode(error) !== "23505" || attempt === 3) throw error;
     }
   }
   return err("GENERIC", "Could not create the room type.");
@@ -208,7 +208,7 @@ export async function addUnit(
       .returning({ id: roomUnits.id });
     return ok({ id: row.id });
   } catch (error) {
-    if ((error as { code?: string })?.code === "23505") {
+    if (pgErrorCode(error) === "23505") {
       return err("UNIT_EXISTS", "That unit number already exists for this room type.");
     }
     throw error;
