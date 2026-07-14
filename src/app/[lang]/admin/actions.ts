@@ -27,6 +27,8 @@ import {
   type Audience,
 } from "@/lib/campaigns";
 import { localToday } from "@/lib/admin/today";
+import { upsertHotelSettings, type HotelSettingsInput } from "@/lib/admin/settings";
+import { removeRoomPhoto, updateRoomType } from "@/lib/rooms";
 import {
   cancelRsvp,
   createEvent,
@@ -433,5 +435,67 @@ export async function cancelRsvpAction(formData: FormData): Promise<void> {
   const ctx = await guardOr403("front_desk", lang);
   const result = await cancelRsvp(ctx.tenant.id, String(formData.get("rsvpId") ?? ""));
   if (!result.ok) backTo(back, "error", result.code);
+  backTo(back, "ok", "1");
+}
+
+export async function saveSettingsAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/settings`;
+  const ctx = await guardOr403("manager", lang);
+  const optionalInt = (name: string): number | null => {
+    const raw = String(formData.get(name) ?? "").trim();
+    return raw === "" ? null : Number(raw);
+  };
+  const input: HotelSettingsInput = {
+    hotelName: String(formData.get("hotelName") ?? ""),
+    address: String(formData.get("address") ?? ""),
+    phone: String(formData.get("phone") ?? ""),
+    whatsappE164: String(formData.get("whatsappE164") ?? ""),
+    whatsappGroupUrl: String(formData.get("whatsappGroupUrl") ?? ""),
+    email: String(formData.get("email") ?? ""),
+    checkinTime: String(formData.get("checkinTime") ?? ""),
+    checkoutTime: String(formData.get("checkoutTime") ?? ""),
+    timezone: String(formData.get("timezone") ?? ""),
+    bookingMode: String(
+      formData.get("bookingMode") ?? "instant_deposit",
+    ) as HotelSettingsInput["bookingMode"],
+    depositPercent: Number(formData.get("depositPercent") ?? NaN),
+    holdMinutes: Number(formData.get("holdMinutes") ?? NaN),
+    cancellationFreeUntilDays: optionalInt("cancellationFreeUntilDays"),
+    cancellationPenaltyPercent: optionalInt("cancellationPenaltyPercent"),
+  };
+  const result = await upsertHotelSettings(ctx.tenant.id, input);
+  if (!result.ok) backTo(back, "error", result.code);
+  backTo(back, "ok", "1");
+}
+
+export async function updateRoomTypeAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/rooms`;
+  const ctx = await guardOr403("manager", lang);
+  const size = Number(formData.get("sizeSqm"));
+  const result = await updateRoomType(
+    ctx.tenant.id,
+    String(formData.get("roomTypeId") ?? ""),
+    {
+      name: String(formData.get("name") ?? ""),
+      description: String(formData.get("description") ?? ""),
+      baseRateMinor: Number(formData.get("baseRateMinor") ?? NaN),
+      maxOccupancy: Number(formData.get("maxOccupancy") ?? NaN),
+      bedConfig: String(formData.get("bedConfig") ?? ""),
+      sizeSqm: Number.isInteger(size) && size > 0 ? size : null,
+      sortOrder: Number(formData.get("sortOrder") ?? 0) || 0,
+      isActive: Boolean(formData.get("isActive")),
+    },
+  );
+  if (!result.ok) backTo(back, "error", result.code);
+  backTo(back, "ok", "1");
+}
+
+export async function removeRoomPhotoAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/rooms`;
+  const ctx = await guardOr403("manager", lang);
+  await removeRoomPhoto(ctx.tenant.id, String(formData.get("photoId") ?? ""));
   backTo(back, "ok", "1");
 }

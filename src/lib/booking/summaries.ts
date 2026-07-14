@@ -27,6 +27,7 @@ export interface HoldSummary {
   dueNowMinor: number;
   currency: string;
   bookingMode: "request" | "instant_full" | "instant_deposit";
+  cancellationPolicy: { freeUntilDays?: number; penaltyPercent?: number } | null;
   expiresAt: Date;
 }
 
@@ -99,6 +100,7 @@ export async function getHoldSummary(args: {
     dueNowMinor: depositForMode(bookingMode, rates.totalMinor, depositPercent),
     currency: roomType.currency,
     bookingMode,
+    cancellationPolicy: settings?.cancellationPolicy ?? null,
     expiresAt: claim.expiresAt,
   });
 }
@@ -116,6 +118,7 @@ export interface ReservationSummary {
   discountMinor: number;
   promoCode: string | null;
   currency: string;
+  cancellationPolicySnapshot: { freeUntilDays?: number; penaltyPercent?: number } | null;
 }
 
 /** The code is the guest's lookup key by design (spoken over the phone). */
@@ -136,6 +139,7 @@ export async function getReservationSummaryByCode(args: {
       discountMinor: reservations.discountMinor,
       promoCode: reservations.promoCode,
       currency: reservations.currency,
+      cancellationPolicySnapshot: reservations.cancellationPolicySnapshot,
       roomTypeName: roomTypes.name,
     })
     .from(reservations)

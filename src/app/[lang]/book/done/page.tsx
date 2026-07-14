@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cancellationPolicyText } from "@/lib/booking/policy";
 import { getReservationSummaryByCode } from "@/lib/booking/summaries";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
 import { formatMoneyMinor } from "@/lib/money";
@@ -43,6 +44,12 @@ export default async function BookDonePage({
     );
   }
   const r = summary.data;
+  const policyText = cancellationPolicyText(r.cancellationPolicySnapshot, {
+    freeUntil: b.policyFreeUntil,
+    freeAlways: b.policyFreeAlways,
+    penaltyAfter: b.policyPenaltyAfter,
+    nonRefundable: b.policyNonRefundable,
+  });
 
   const heading =
     r.status === "confirmed"
@@ -111,6 +118,12 @@ export default async function BookDonePage({
           ) : null}
         </dl>
       </section>
+
+      {policyText ? (
+        <p className="mt-4 text-xs text-slate-600 dark:text-slate-400">
+          <strong>{b.policyTitle}:</strong> {policyText}
+        </p>
+      ) : null}
 
       <p className="mt-6 text-sm text-slate-600 dark:text-slate-400">{b.keepCode}</p>
 

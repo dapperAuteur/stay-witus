@@ -10,6 +10,7 @@ import {
 } from "@/db/schema";
 import type { Dictionary } from "@/lib/dictionaries";
 import { latestPublishedAnnouncement } from "@/lib/campaigns";
+import { thumbnailsForRoomTypes } from "@/lib/rooms";
 import { resolveSectionConfig, type SectionKey } from "@/lib/sections";
 import type { TenantRecord } from "@/lib/tenant";
 import { ConciergeSection } from "./concierge-section";
@@ -120,6 +121,7 @@ export async function HotelHome({
     ]);
 
   const byKey = new Map(sectionRows.map((row) => [row.key, row]));
+  const roomThumbnails = await thumbnailsForRoomTypes(rooms.map((r) => r.id));
   const announcement = await latestPublishedAnnouncement(tenant.id).catch(() => null);
   const settings = settingsRows[0];
   const timezone = settings?.timezone ?? "Africa/Accra";
@@ -170,6 +172,8 @@ export async function HotelHome({
                 rooms={rooms}
                 variant={config.variants.rooms}
                 dict={dict}
+                lang={lang}
+                thumbnails={roomThumbnails}
               />
             );
           case "dining":

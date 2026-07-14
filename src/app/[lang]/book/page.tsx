@@ -5,6 +5,8 @@ import { isIsoDate } from "@/lib/booking/dates";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
 import { formatMoneyMinor } from "@/lib/money";
 import { resolveTenant } from "@/lib/tenant";
+import Link from "next/link";
+import { thumbnailsForRoomTypes } from "@/lib/rooms";
 import { holdRoomAction } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -41,6 +43,10 @@ export default async function BookPage({
 
   const errorText =
     error && error in b.errors ? b.errors[error as keyof typeof b.errors] : null;
+  const thumbnails =
+    results?.ok && results.data.length > 0
+      ? await thumbnailsForRoomTypes(results.data.map((room) => room.roomTypeId))
+      : new Map();
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-10">
@@ -102,11 +108,25 @@ export default async function BookPage({
             {results.data.map((room) => (
               <li
                 key={room.roomTypeId}
-                className="rounded-xl border border-slate-200 p-5 dark:border-slate-800"
+                className="flex flex-wrap gap-4 rounded-xl border border-slate-200 p-5 dark:border-slate-800"
               >
+                {thumbnails.get(room.roomTypeId) ? (
+                  /* eslint-disable-next-line @next/next/no-img-element -- Cloudinary f_auto/q_auto */
+                  <img
+                    src={thumbnails.get(room.roomTypeId)?.url}
+                    alt=""
+                    className="h-28 w-40 shrink-0 rounded-lg object-cover"
+                  />
+                ) : null}
+                <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <h2 className="text-lg font-semibold [font-family:var(--font-heading)]">
-                    {room.name}
+                    <Link
+                      href={`/${lang}/rooms/${room.slug}?checkIn=${encodeURIComponent(checkIn ?? "")}&checkOut=${encodeURIComponent(checkOut ?? "")}`}
+                      className="underline-offset-4 hover:underline focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                    >
+                      {room.name}
+                    </Link>
                   </h2>
                   <p className="text-sm text-slate-600 dark:text-slate-400">
                     <span
@@ -148,6 +168,7 @@ export default async function BookPage({
                     {b.soldOut}
                   </p>
                 )}
+                </div>
               </li>
             ))}
             {results.data.length === 0 ? (

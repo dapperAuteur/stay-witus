@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { SessionBar } from "@/components/session-bar";
+import { TenantHeader } from "@/components/hotel/tenant-header";
 import { brandCssVars } from "@/lib/brand-presets";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
 import { fontPairCssVars } from "@/lib/fonts";
@@ -32,6 +33,9 @@ export default async function LangLayout({
       className="min-h-dvh"
     >
       <SessionBar lang={lang} dict={dict} />
+      {tenant && !tenant.flags.platform ? (
+        <TenantHeader tenant={tenant} dict={dict} lang={lang} />
+      ) : null}
       {children}
     </div>
   );
