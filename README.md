@@ -31,7 +31,8 @@ UI work. `/api/health` reports which integrations are configured.
 |---|---|
 | `pnpm dev` / `build` / `start` | Next.js |
 | `pnpm typecheck` | `tsc --noEmit` |
-| `pnpm test` | Vitest unit tests |
+| `pnpm test` | Vitest unit + Neon integration tests |
+| `pnpm test:e2e` | Playwright + axe gate (build first; chromium, desktop + 375×667) |
 | `pnpm db:generate` | Drizzle migration from schema changes |
 | `pnpm db:migrate` | Apply migrations (file a user-task for prod) |
 

@@ -14,5 +14,6 @@ export default defineConfig({
     // contend for connections and time each other out. Unit files are fast
     // enough that serial execution costs little.
     fileParallelism: false,
+    exclude: ["**/node_modules/**", "tests/e2e/**"],
   },
 });

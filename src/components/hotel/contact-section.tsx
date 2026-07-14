@@ -27,7 +27,7 @@ export function ContactSection({
           {settings.address}
         </address>
       ) : null}
-      <p className="mt-2 text-sm text-slate-500 dark:text-slate-500">
+      <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
         {s.contactCheckIn} {settings.checkinTime} · {s.contactCheckOut}{" "}
         {settings.checkoutTime}
       </p>
