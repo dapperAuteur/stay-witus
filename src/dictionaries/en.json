@@ -219,7 +219,54 @@
       "calendar": "Calendar",
       "pricing": "Pricing",
       "design": "Design",
-      "team": "Team"
+      "team": "Team",
+      "content": "Content",
+      "guide": "Guide"
+    },
+    "content": {
+      "intro": "Your words, your photos. Nothing shows on the site until you tick Published.",
+      "sectionNames": {
+        "hero": "Welcome",
+        "about": "About",
+        "dining": "Dining",
+        "virtual_tour": "Virtual tour"
+      },
+      "titleField": "Heading",
+      "bodyField": "Text (blank line starts a new paragraph)",
+      "imageUrlField": "Photo link (https, from your media library)",
+      "imageAltField": "Photo description for screen readers",
+      "embedUrlField": "Tour link (https)",
+      "publishedField": "Published",
+      "save": "Save",
+      "mediaPending": "Photo uploads arrive once the media library is connected (operator task 05). Until then, paste an https photo link."
+    },
+    "guide": {
+      "intro": "The places you actually send guests to. Only published entries appear on your site.",
+      "nameField": "Name",
+      "zoneField": "Zone",
+      "zones": { "walkable": "Walkable", "day_trip": "Day trip" },
+      "categoryField": "Category",
+      "categories": {
+        "food_drink": "Food & drink",
+        "nightlife": "Nightlife",
+        "culture": "Culture",
+        "shopping": "Shopping",
+        "health": "Health",
+        "beach": "Beach",
+        "nature": "Nature",
+        "other": "Other"
+      },
+      "walkField": "Minutes on foot",
+      "driveField": "Minutes by car",
+      "blurbField": "One or two sentences guests should know",
+      "mapField": "Map link (https)",
+      "sortField": "Position",
+      "publishedField": "Published",
+      "save": "Save",
+      "add": "Add a place",
+      "create": "Add place",
+      "delete": "Delete",
+      "empty": "No places yet. Add the spots you recommend every week."
     },
     "team": {
       "members": "Team",

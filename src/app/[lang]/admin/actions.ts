@@ -2,6 +2,13 @@
 
 import { redirect } from "next/navigation";
 import { createBlockout, releaseBlockout } from "@/lib/admin/blockouts";
+import {
+  createAttraction,
+  deleteAttraction,
+  updateAttraction,
+  upsertSiteSection,
+  type AttractionInput,
+} from "@/lib/admin/content";
 import { createStaffInvite, revokeStaffInvite } from "@/lib/admin/invites";
 import { updateTenantDesign } from "@/lib/admin/design";
 import { getStaffContext, type StaffContext } from "@/lib/admin/guard";
@@ -153,5 +160,76 @@ export async function revokeInviteAction(formData: FormData): Promise<void> {
   const back = String(formData.get("back") ?? `/${lang}/admin/team`);
   const ctx = await guardOr403("owner", lang);
   await revokeStaffInvite(ctx.tenant.id, String(formData.get("inviteId") ?? ""));
+  backTo(back, "ok", "1");
+}
+
+export async function saveSectionAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/content`;
+  const ctx = await guardOr403("manager", lang);
+  const result = await upsertSiteSection({
+    tenantId: ctx.tenant.id,
+    key: String(formData.get("key") ?? ""),
+    title: String(formData.get("title") ?? ""),
+    body: String(formData.get("body") ?? ""),
+    isPublished: Boolean(formData.get("isPublished")),
+    data: {
+      imageUrl: String(formData.get("imageUrl") ?? ""),
+      imageAlt: String(formData.get("imageAlt") ?? ""),
+      embedUrl: String(formData.get("embedUrl") ?? ""),
+    },
+    updatedBy: ctx.user.id,
+  });
+  if (!result.ok) backTo(back, "error", result.code);
+  backTo(back, "ok", "1");
+}
+
+function attractionInput(formData: FormData): AttractionInput {
+  const num = (name: string) => {
+    const v = Number(formData.get(name));
+    return Number.isFinite(v) && v > 0 ? Math.round(v) : null;
+  };
+  return {
+    name: String(formData.get("name") ?? ""),
+    zone: String(formData.get("zone") ?? "walkable") as AttractionInput["zone"],
+    category: String(
+      formData.get("category") ?? "other",
+    ) as AttractionInput["category"],
+    walkMinutes: num("walkMinutes"),
+    driveMinutes: num("driveMinutes"),
+    blurb: String(formData.get("blurb") ?? ""),
+    mapUrl: String(formData.get("mapUrl") ?? ""),
+    sortOrder: Number(formData.get("sortOrder") ?? 0) || 0,
+    isPublished: Boolean(formData.get("isPublished")),
+  };
+}
+
+export async function createAttractionAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/guide`;
+  const ctx = await guardOr403("manager", lang);
+  const result = await createAttraction(ctx.tenant.id, attractionInput(formData));
+  if (!result.ok) backTo(back, "error", result.code);
+  backTo(back, "ok", "1");
+}
+
+export async function updateAttractionAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/guide`;
+  const ctx = await guardOr403("manager", lang);
+  const result = await updateAttraction(
+    ctx.tenant.id,
+    String(formData.get("id") ?? ""),
+    attractionInput(formData),
+  );
+  if (!result.ok) backTo(back, "error", result.code);
+  backTo(back, "ok", "1");
+}
+
+export async function deleteAttractionAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/guide`;
+  const ctx = await guardOr403("manager", lang);
+  await deleteAttraction(ctx.tenant.id, String(formData.get("id") ?? ""));
   backTo(back, "ok", "1");
 }
