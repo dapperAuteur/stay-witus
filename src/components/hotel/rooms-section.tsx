@@ -146,7 +146,7 @@ export function RoomsSection({
                   {room.description}
                 </p>
               ) : null}
-              <p className="mt-3 text-xs text-slate-500 dark:text-slate-500">
+              <p className="mt-3 text-xs text-slate-600 dark:text-slate-400">
                 {s.roomsSleeps} {room.maxOccupancy}
                 {room.bedConfig ? <> · {room.bedConfig}</> : null}
                 {room.sizeSqm ? <> · {room.sizeSqm} m²</> : null}

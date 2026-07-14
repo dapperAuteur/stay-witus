@@ -25,7 +25,7 @@ export function GuideSection({
             key={spot.id}
             className={`${tpl.t.card} p-5`}
           >
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-500">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
               {spot.zone === "walkable" ? s.guideWalkable : s.guideDayTrip}
               {spot.zone === "walkable" && spot.walkMinutes ? (
                 <> · {spot.walkMinutes} {s.guideMinutesWalk}</>

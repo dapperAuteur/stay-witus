@@ -32,7 +32,7 @@ export function ConciergeSection({
             key={partner.id}
             className={`flex flex-col ${tpl.t.card} p-5`}
           >
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-500">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
               {s.partnerCategories[partner.category]}
             </p>
             <h3 className="mt-1 text-lg font-semibold [font-family:var(--font-heading)]">
@@ -44,7 +44,7 @@ export function ConciergeSection({
               </p>
             ) : null}
             {partner.priceNote ? (
-              <p className="mt-2 text-xs text-slate-500 dark:text-slate-500">
+              <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">
                 {partner.priceNote}
               </p>
             ) : null}
