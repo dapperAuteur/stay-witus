@@ -224,6 +224,10 @@
     "events": "Events",
     "home": "Home"
   },
+  "demoRibbon": {
+    "text": "This is the Stay.WitUS demo hotel. Everything resets at midnight.",
+    "cta": "Try the owner dashboard"
+  },
   "events": {
     "title": "What's on",
     "intro": "Hotel evenings, cultural nights, and area happenings. Reserve a spot where offered.",
