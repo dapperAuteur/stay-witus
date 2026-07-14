@@ -14,7 +14,8 @@
       "Bash(node -e ' *)",
       "Bash(curl -sS -o /dev/null \"http://localhost:3116/api/health\")",
       "Bash(curl -sS -H \"Host: stay.witus.online\" http://localhost:3116/en/platform)",
-      "Bash(curl -sS -H \"Host: stay.witus.online\" http://localhost:3116/en/nope/nada)"
+      "Bash(curl -sS -H \"Host: stay.witus.online\" http://localhost:3116/en/nope/nada)",
+      "Bash(python3 -c \"import json; json.load\\(open\\('src/dictionaries/en.json'\\)\\); print\\('json valid'\\)\")"
     ]
   }
 }

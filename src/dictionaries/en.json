@@ -33,6 +33,9 @@
     "adultsLabel": "Adults",
     "childrenLabel": "Children",
     "requestsLabel": "Special requests (optional)",
+    "promoLabel": "Promo code (optional)",
+    "optInLabel": "Email me occasional offers and news from this property. Unsubscribe anytime.",
+    "discount": "Discount",
     "confirmAndPay": "Confirm and pay deposit",
     "confirm": "Confirm reservation",
     "holdGoneTitle": "That hold has expired",
@@ -60,7 +63,8 @@
       "HOLD_NOT_FOUND": "Your hold expired. Please search again.",
       "INVALID_GUEST": "Please give us your name and a valid email address.",
       "PAYMENT_NOT_CONFIGURED": "Online payment is not available yet for this property.",
-      "PROVIDER_ERROR": "The payment service had a problem. Your reservation is saved; please try paying again shortly."
+      "PROVIDER_ERROR": "The payment service had a problem. Your reservation is saved; please try paying again shortly.",
+      "PROMO_INVALID": "That promo code is not valid for this stay. Remove it or try another."
     }
   },
   "landing": {
@@ -230,7 +234,36 @@
       "design": "Design",
       "team": "Team",
       "content": "Content",
-      "guide": "Guide"
+      "guide": "Guide",
+      "announce": "Announce"
+    },
+    "announce": {
+      "intro": "Write once, reach the right guests. Email goes only to people who ticked the offers box when booking; the WhatsApp button is for your own group.",
+      "composeTitle": "New announcement",
+      "titleField": "Title",
+      "bodyField": "Message",
+      "audienceField": "Email audience",
+      "audiences": {
+        "past_guests": "Past guests",
+        "upcoming_guests": "Upcoming guests",
+        "current_guests": "Guests in house",
+        "all_subscribers": "Everyone opted in"
+      },
+      "optedIn": "opted in",
+      "urgentField": "Urgent (site banner highlights it)",
+      "urgentBadge": "Urgent",
+      "saveDraft": "Save draft",
+      "statusDraft": "Draft",
+      "statusPublished": "On the site",
+      "statusSent": "Emailed",
+      "send": "Send email",
+      "resend": "Send to new opt-ins",
+      "publish": "Show on site",
+      "unpublish": "Remove from site",
+      "whatsapp": "Share to WhatsApp",
+      "copyText": "announcement text",
+      "sentFlash": "Emails sent:",
+      "empty": "Nothing yet. Your first announcement could be this week's event."
     },
     "content": {
       "intro": "Your words, your photos. Nothing shows on the site until you tick Published.",
@@ -354,7 +387,24 @@
       "dows": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
       "create": "Add override",
       "delete": "Delete",
-      "deleteConfirm": "Delete this override"
+      "deleteConfirm": "Delete this override",
+      "promoTitle": "Promo codes",
+      "promoIntro": "Guests type the code at checkout; the discount comes off the stay total and the deposit follows.",
+      "promoCodeField": "Code (letters, numbers, dashes)",
+      "promoKindField": "Type",
+      "promoPercent": "Percent off",
+      "promoFixed": "Amount off (pesewas)",
+      "promoValueField": "Value",
+      "promoRoomField": "Room type (optional)",
+      "promoAnyRoom": "Any room",
+      "promoStartsField": "Valid from (check-in date)",
+      "promoEndsField": "Valid to",
+      "promoMaxField": "Max uses (blank = unlimited)",
+      "promoUsed": "used",
+      "promoCreate": "Create code",
+      "promoActivate": "Activate",
+      "promoDeactivate": "Deactivate",
+      "promoEmpty": "No codes yet."
     },
     "design": {
       "intro": "Arrange your homepage. Everything here stays inside layouts we designed, so your site keeps working on every phone.",
@@ -371,6 +421,10 @@
     "ok": "Done.",
     "errors": {
       "GENERIC": "That did not work. Please try again.",
+      "PROMO_BAD_CODE": "Codes are 3-24 letters, numbers, or dashes.",
+      "PROMO_BAD_VALUE": "Percent codes need 1-90; fixed codes need a positive pesewa amount.",
+      "PROMO_EXISTS": "That code already exists.",
+      "INVALID_CONTENT": "Give the announcement a title and a message.",
       "OCCUPIED": "A booking or blockout already covers those dates.",
       "INVALID_TRANSITION": "That reservation has moved on. Refresh and try again.",
       "INVALID_LABEL": "Give the override a name.",
@@ -381,6 +435,10 @@
   },
   "platform": {
     "title": "Stay.WitUS Platform",
+    "bannerTitle": "Landing-page promo banner",
+    "bannerHint": "Shown across the top of stay.witus.online. Leave empty to hide. Your words - review before saving.",
+    "bannerField": "Banner text",
+    "bannerSave": "Save banner",
     "domains": {
       "title": "Domains",
       "saved": "Done.",

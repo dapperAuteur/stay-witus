@@ -6,6 +6,7 @@
 // point of the reset — it must be safe to run against production data).
 
 import { and, eq } from "drizzle-orm";
+import { tableExists } from "@/lib/db-probe";
 import { afterAll, describe, expect, it } from "vitest";
 import { db } from "@/db";
 import { reservations, roomTypes, tenants, users } from "@/db/schema";
@@ -17,6 +18,9 @@ import { DEMO_TENANT_SLUG } from "./seed";
 const hasDb = Boolean(
   process.env.STORAGE_DATABASE_URL ?? process.env.DATABASE_URL,
 );
+// Booking inserts include migration-0002 columns (drizzle lists every schema
+// column), so these suites need the migration; they self-skip until task 07.
+const ready = hasDb && (await tableExists("promo_codes"));
 
 // Test-only demo credentials (vitest.setup provides auth fallbacks; these
 // stand in for BAM's real DEMO_* values).
@@ -25,7 +29,7 @@ process.env.DEMO_ADMIN_PASSWORD ??= "vitest-demo-admin-pass-1";
 process.env.DEMO_VISITOR_USER_EMAIL ??= "demo-visitor@stay-witus.test";
 process.env.DEMO_VISITOR_PASSWORD ??= "vitest-demo-visitor-pass-1";
 
-describe.skipIf(!hasDb)("demo reset + logins against Neon", () => {
+describe.skipIf(!ready)("demo reset + logins against Neon (needs migration 0002)", () => {
   afterAll(async () => {
     // Leave the demo tenant itself in place (it is production state), but
     // remove the test-credential users if this run created them with the

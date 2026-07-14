@@ -5,6 +5,7 @@
 // Throwaway tenant, cascade-deleted in afterAll.
 
 import { createHmac, randomUUID } from "node:crypto";
+import { tableExists } from "@/lib/db-probe";
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { POST as paystackWebhook } from "@/app/api/webhooks/paystack/[tenantSlug]/route";
@@ -21,6 +22,9 @@ import { confirmHold, createHold } from "@/lib/booking/holds";
 const hasDb = Boolean(
   process.env.STORAGE_DATABASE_URL ?? process.env.DATABASE_URL,
 );
+// Booking inserts include migration-0002 columns (drizzle lists every schema
+// column), so these suites need the migration; they self-skip until task 07.
+const ready = hasDb && (await tableExists("promo_codes"));
 
 const SECRET_ENV = "ITEST_PAYSTACK_SECRET";
 const SECRET = "sk_test_integration-secret";
@@ -38,7 +42,7 @@ function webhookRequest(slug: string, payload: unknown, secret = SECRET) {
   );
 }
 
-describe.skipIf(!hasDb)("guest payment chain against Neon", () => {
+describe.skipIf(!ready)("guest payment chain against Neon (needs migration 0002)", () => {
   const slug = `itest-pay-${randomUUID().slice(0, 8)}`;
   let tenantId: string;
   let reservationId: string;

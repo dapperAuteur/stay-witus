@@ -113,6 +113,8 @@ export interface ReservationSummary {
   checkOut: string;
   totalMinor: number;
   depositMinor: number;
+  discountMinor: number;
+  promoCode: string | null;
   currency: string;
 }
 
@@ -131,6 +133,8 @@ export async function getReservationSummaryByCode(args: {
       checkOut: reservations.checkOut,
       totalMinor: reservations.totalMinor,
       depositMinor: reservations.depositMinor,
+      discountMinor: reservations.discountMinor,
+      promoCode: reservations.promoCode,
       currency: reservations.currency,
       roomTypeName: roomTypes.name,
     })

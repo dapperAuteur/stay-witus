@@ -3,11 +3,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireStaffPage } from "@/lib/admin/guard";
 import { getPricingMonth, listRoomTypes } from "@/lib/admin/pricing";
+import { asc, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { promoCodes } from "@/db/schema";
 import { localToday } from "@/lib/admin/today";
 import { addMonths, isIsoMonth, monthOf } from "@/lib/booking/dates";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
 import { formatMoneyMinor } from "@/lib/money";
-import { createOverrideAction, deleteOverrideAction } from "../actions";
+import {
+  createOverrideAction,
+  createPromoAction,
+  deleteOverrideAction,
+  togglePromoAction,
+} from "../actions";
 import { Flash } from "../flash";
 
 export const dynamic = "force-dynamic";
@@ -44,6 +52,12 @@ export default async function AdminPricingPage({
   const pricing = roomTypeId
     ? await getPricingMonth(gate.ctx.tenant.id, roomTypeId, month)
     : null;
+  const promos = await db()
+    .select()
+    .from(promoCodes)
+    .where(eq(promoCodes.tenantId, gate.ctx.tenant.id))
+    .orderBy(asc(promoCodes.code))
+    .catch(() => []);
   const self = `/${lang}/admin/pricing?roomType=${roomTypeId ?? ""}&month=${month}`;
 
   return (
@@ -210,6 +224,87 @@ export default async function AdminPricingPage({
                 style={{ background: "var(--brand-accent)", color: "var(--brand-accent-fg)" }}
               >
                 {a.create}
+              </button>
+            </form>
+          </section>
+
+          <section aria-label={a.promoTitle} className="mt-8 rounded-xl border border-slate-200 p-5 dark:border-slate-800">
+            <h2 className="text-lg font-semibold">{a.promoTitle}</h2>
+            <p className="mt-1 max-w-xl text-xs text-slate-500">{a.promoIntro}</p>
+            {promos.length > 0 ? (
+              <ul className="mt-3 flex flex-col gap-2">
+                {promos.map((promo) => (
+                  <li key={promo.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 p-3 text-sm dark:border-slate-800">
+                    <span>
+                      <strong className="font-mono">{promo.code}</strong> ·{" "}
+                      {promo.kind === "percent"
+                        ? `${promo.value}%`
+                        : formatMoneyMinor(promo.value, pricing.data.roomType.currency)}{" "}
+                      · {promo.redemptionCount}
+                      {promo.maxRedemptions ? `/${promo.maxRedemptions}` : ""} {a.promoUsed}
+                      {!promo.isActive ? " · off" : ""}
+                    </span>
+                    <form action={togglePromoAction}>
+                      <input type="hidden" name="lang" value={lang} />
+                      <input type="hidden" name="back" value={self} />
+                      <input type="hidden" name="promoId" value={promo.id} />
+                      <input type="hidden" name="active" value={promo.isActive ? "0" : "1"} />
+                      <button type="submit" className="inline-flex min-h-11 items-center rounded-full border border-slate-300 px-4 font-medium dark:border-slate-700">
+                        {promo.isActive ? a.promoDeactivate : a.promoActivate}
+                        <span className="sr-only"> {promo.code}</span>
+                      </button>
+                    </form>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-2 text-sm text-slate-500">{a.promoEmpty}</p>
+            )}
+            <form action={createPromoAction} className="mt-4 flex flex-wrap items-end gap-4">
+              <input type="hidden" name="lang" value={lang} />
+              <input type="hidden" name="back" value={self} />
+              <div className="flex flex-col gap-1">
+                <label htmlFor="promo-code" className="text-sm font-medium">{a.promoCodeField}</label>
+                <input id="promo-code" name="code" required className={INPUT} />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label htmlFor="promo-kind" className="text-sm font-medium">{a.promoKindField}</label>
+                <select id="promo-kind" name="kind" className={INPUT}>
+                  <option value="percent">{a.promoPercent}</option>
+                  <option value="fixed">{a.promoFixed}</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label htmlFor="promo-value" className="text-sm font-medium">{a.promoValueField}</label>
+                <input id="promo-value" name="value" type="number" min={1} required className={`${INPUT} w-28`} />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label htmlFor="promo-room" className="text-sm font-medium">{a.promoRoomField}</label>
+                <select id="promo-room" name="roomTypeId" className={INPUT}>
+                  <option value="">{a.promoAnyRoom}</option>
+                  {roomTypesList.map((rt) => (
+                    <option key={rt.id} value={rt.id}>{rt.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label htmlFor="promo-starts" className="text-sm font-medium">{a.promoStartsField}</label>
+                <input id="promo-starts" name="startsOn" type="date" className={INPUT} />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label htmlFor="promo-ends" className="text-sm font-medium">{a.promoEndsField}</label>
+                <input id="promo-ends" name="endsOn" type="date" className={INPUT} />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label htmlFor="promo-max" className="text-sm font-medium">{a.promoMaxField}</label>
+                <input id="promo-max" name="maxRedemptions" type="number" min={1} className={`${INPUT} w-28`} />
+              </div>
+              <button
+                type="submit"
+                className="inline-flex min-h-11 items-center rounded-full px-6 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                style={{ background: "var(--brand-accent)", color: "var(--brand-accent-fg)" }}
+              >
+                {a.promoCreate}
               </button>
             </form>
           </section>

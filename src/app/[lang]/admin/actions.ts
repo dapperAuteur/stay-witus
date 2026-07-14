@@ -20,6 +20,16 @@ import {
 import { addDays } from "@/lib/booking/dates";
 import { headers } from "next/headers";
 import { SECTION_KEYS } from "@/lib/sections";
+import {
+  createAnnouncement,
+  sendAnnouncement,
+  setAnnouncementPublished,
+  type Audience,
+} from "@/lib/campaigns";
+import { localToday } from "@/lib/admin/today";
+import { and, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { promoCodes } from "@/db/schema";
 import type { TenantRole } from "@/db/schema";
 
 // Every action re-guards independently of the page (a stale tab must not
@@ -231,5 +241,99 @@ export async function deleteAttractionAction(formData: FormData): Promise<void> 
   const back = `/${lang}/admin/guide`;
   const ctx = await guardOr403("manager", lang);
   await deleteAttraction(ctx.tenant.id, String(formData.get("id") ?? ""));
+  backTo(back, "ok", "1");
+}
+
+export async function createAnnouncementAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/announce`;
+  const ctx = await guardOr403("manager", lang);
+  const result = await createAnnouncement({
+    tenantId: ctx.tenant.id,
+    title: String(formData.get("title") ?? ""),
+    body: String(formData.get("body") ?? ""),
+    urgency: formData.get("urgency") === "urgent" ? "urgent" : "normal",
+    audience: String(formData.get("audience") ?? "past_guests") as Audience,
+    createdBy: ctx.user.id,
+  });
+  if (!result.ok) backTo(back, "error", result.code);
+  backTo(back, "ok", "1");
+}
+
+export async function publishAnnouncementAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/announce`;
+  const ctx = await guardOr403("manager", lang);
+  const result = await setAnnouncementPublished(
+    ctx.tenant.id,
+    String(formData.get("announcementId") ?? ""),
+    formData.get("publish") === "1",
+  );
+  if (!result.ok) backTo(back, "error", result.code);
+  backTo(back, "ok", "1");
+}
+
+export async function sendAnnouncementAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/announce`;
+  const ctx = await guardOr403("manager", lang);
+  const h = await headers();
+  const host = h.get("host") ?? "localhost:3000";
+  const proto = h.get("x-forwarded-proto") ?? "https";
+  const result = await sendAnnouncement({
+    tenantId: ctx.tenant.id,
+    announcementId: String(formData.get("announcementId") ?? ""),
+    today: localToday("Africa/Accra"),
+    from: ctx.tenant.email.from,
+    replyTo: ctx.tenant.email.replyTo,
+    siteBase: `${proto}://${host}`,
+    brandName: ctx.tenant.theme.name ?? ctx.tenant.name,
+  });
+  if (!result.ok) backTo(back, "error", result.code);
+  backTo(back, "ok", `sent:${result.data.sent}`);
+}
+
+export async function createPromoAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = String(formData.get("back") ?? `/${lang}/admin/pricing`);
+  const ctx = await guardOr403("manager", lang);
+  const code = String(formData.get("code") ?? "").trim();
+  const kind = formData.get("kind") === "fixed" ? "fixed" : "percent";
+  const value = Number(formData.get("value") ?? NaN);
+  if (!/^[a-zA-Z0-9-]{3,24}$/.test(code)) backTo(back, "error", "PROMO_BAD_CODE");
+  if (!Number.isInteger(value) || value <= 0 || (kind === "percent" && value > 90)) {
+    backTo(back, "error", "PROMO_BAD_VALUE");
+  }
+  const max = Number(formData.get("maxRedemptions") ?? 0);
+  try {
+    await db().insert(promoCodes).values({
+      tenantId: ctx.tenant.id,
+      code,
+      kind,
+      value,
+      roomTypeId: String(formData.get("roomTypeId") ?? "") || null,
+      startsOn: String(formData.get("startsOn") ?? "") || null,
+      endsOn: String(formData.get("endsOn") ?? "") || null,
+      maxRedemptions: Number.isInteger(max) && max > 0 ? max : null,
+    });
+  } catch {
+    backTo(back, "error", "PROMO_EXISTS");
+  }
+  backTo(back, "ok", "1");
+}
+
+export async function togglePromoAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = String(formData.get("back") ?? `/${lang}/admin/pricing`);
+  const ctx = await guardOr403("manager", lang);
+  await db()
+    .update(promoCodes)
+    .set({ isActive: formData.get("active") === "1" })
+    .where(
+      and(
+        eq(promoCodes.id, String(formData.get("promoId") ?? "")),
+        eq(promoCodes.tenantId, ctx.tenant.id),
+      ),
+    );
   backTo(back, "ok", "1");
 }

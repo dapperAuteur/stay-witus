@@ -140,6 +140,17 @@ export default async function BookDetailsPage({
           </div>
         </div>
         <div className="flex flex-col gap-1">
+          <label htmlFor="promoCode" className="text-sm font-medium">
+            {b.promoLabel}
+          </label>
+          <input id="promoCode" name="promoCode" autoComplete="off" className={INPUT_CLASSES} />
+        </div>
+        {/* DRAFT consent copy (plans/09) — BAM reviews the wording; never pre-checked. */}
+        <label className="flex min-h-11 items-start gap-2 text-sm">
+          <input type="checkbox" name="marketingOptIn" value="1" className="mt-1 h-4 w-4" />
+          <span>{b.optInLabel}</span>
+        </label>
+        <div className="flex flex-col gap-1">
           <label htmlFor="specialRequests" className="text-sm font-medium">
             {b.requestsLabel}
           </label>

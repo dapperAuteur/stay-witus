@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { HotelHome } from "@/components/hotel/hotel-home";
 import { PlatformLanding } from "@/components/platform-landing";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
+import { getGlobalSetting, PROMO_BANNER_KEY } from "@/lib/platform/settings";
 import { isPlatformHost } from "@/lib/platform-host";
 import { resolveTenant } from "@/lib/tenant";
 
@@ -29,7 +30,8 @@ export default async function HomePage({
   const tenant = await resolveTenant().catch(() => null);
 
   if (tenant?.flags.platform || (!tenant && isPlatformHost((await headers()).get("host")))) {
-    return <PlatformLanding dict={dict} lang={lang} />;
+    const promoBanner = await getGlobalSetting(PROMO_BANNER_KEY).catch(() => null);
+    return <PlatformLanding dict={dict} lang={lang} promoBanner={promoBanner} />;
   }
 
   if (!tenant) {

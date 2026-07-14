@@ -11,13 +11,24 @@ import type { Locale } from "@/lib/locales";
 export function PlatformLanding({
   dict,
   lang,
+  promoBanner,
 }: {
   dict: Dictionary;
   lang: Locale;
+  promoBanner?: string | null;
 }) {
   const d = dict.landing;
   return (
     <>
+      {promoBanner ? (
+        <aside
+          role="status"
+          className="border-b border-slate-200 px-6 py-2 text-center text-sm font-medium dark:border-slate-800"
+          style={{ background: "var(--brand-accent)", color: "var(--brand-accent-fg)" }}
+        >
+          {promoBanner}
+        </aside>
+      ) : null}
       <main className="mx-auto flex min-h-dvh max-w-3xl flex-col px-6 py-16">
       <header className="flex flex-col gap-4">
         <p

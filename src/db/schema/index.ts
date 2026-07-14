@@ -7,6 +7,7 @@ export * from "./content";
 export * from "./events";
 export * from "./messaging";
 export * from "./partners";
+export * from "./promos";
 export * from "./rooms";
 export * from "./settings";
 export * from "./support";

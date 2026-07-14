@@ -18,6 +18,7 @@ import {
 import { parseStayRange, stayRange } from "@/db/schema/_types";
 import { err, ok, type Result } from "@/lib/result";
 import { generateReservationCode } from "./codes";
+import { applyPromoCode, redeemPromo } from "./promos";
 import { addDays, validateStay } from "./dates";
 import { computeDepositMinor, resolveStayRates, type NightRate } from "./rates";
 
@@ -229,6 +230,10 @@ export interface ConfirmHoldInput {
   adults?: number;
   children?: number;
   specialRequests?: string;
+  /** Optional promo code; invalid codes fail the confirm with PROMO_INVALID. */
+  promoCode?: string;
+  /** Marketing consent checkbox — never defaulted on. */
+  marketingOptIn?: boolean;
 }
 
 export interface ConfirmedReservation {
@@ -240,6 +245,7 @@ export interface ConfirmedReservation {
   currency: string;
   totalMinor: number;
   depositMinor: number;
+  discountMinor: number;
   rateBreakdown: NightRate[];
 }
 
@@ -342,13 +348,37 @@ async function confirmHoldOnce(
       roomType.baseRateMinor,
       overrides,
     );
-    const depositMinor = depositForMode(
-      bookingMode,
-      rates.totalMinor,
-      depositPercent,
-    );
+
+    let discountMinor = 0;
+    let appliedPromoId: string | null = null;
+    let appliedPromoCode: string | null = null;
+    if (input.promoCode?.trim()) {
+      const promo = await applyPromoCode({
+        tenantId: input.tenantId,
+        code: input.promoCode,
+        roomTypeId: claim.roomTypeId,
+        checkIn,
+        totalMinor: rates.totalMinor,
+      });
+      if (!promo.ok) return promo;
+      discountMinor = promo.data.discountMinor;
+      appliedPromoId = promo.data.promoId;
+      appliedPromoCode = promo.data.code;
+    }
+    const totalMinor = rates.totalMinor - discountMinor;
+    // Deposit percent applies to what the guest actually owes.
+    const depositMinor = depositForMode(bookingMode, totalMinor, depositPercent);
     const status =
       bookingMode === "request" ? "awaiting_approval" : "pending_payment";
+    if (appliedPromoId) {
+      // FIRST tx write, before the reservation insert: Result-return does
+      // not roll back, so nothing else may be written until this succeeds.
+      const redeemed = await redeemPromo(tx, appliedPromoId);
+      if (!redeemed) {
+        return err("PROMO_INVALID", "That code is not valid for this stay.");
+      }
+    }
+
     const code = generateReservationCode(
       tenant.slug,
       new Date().getUTCFullYear(),
@@ -370,12 +400,18 @@ async function confirmHoldOnce(
         children: input.children ?? 0,
         status,
         bookingMode,
-        totalMinor: rates.totalMinor,
+        totalMinor,
         depositMinor,
         currency: roomType.currency,
         rateBreakdown: rates.nights,
         cancellationPolicySnapshot: settings?.cancellationPolicy ?? undefined,
         specialRequests: input.specialRequests,
+        // Undefined omits the column: keeps inserts valid until migration
+        // 0002 lands; values only flow once the features are used.
+        promoCode: appliedPromoCode ?? undefined,
+        discountMinor: discountMinor > 0 ? discountMinor : undefined,
+        marketingOptIn: input.marketingOptIn ? true : undefined,
+        marketingOptInAt: input.marketingOptIn ? new Date() : undefined,
       })
       .returning({ id: reservations.id });
 
@@ -395,8 +431,9 @@ async function confirmHoldOnce(
       checkIn,
       checkOut,
       currency: roomType.currency,
-      totalMinor: rates.totalMinor,
+      totalMinor,
       depositMinor,
+      discountMinor,
       rateBreakdown: rates.nights,
     });
   });

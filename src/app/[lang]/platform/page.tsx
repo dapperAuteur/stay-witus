@@ -5,6 +5,8 @@ import { tenants } from "@/db/schema";
 import { hasDatabase } from "@/lib/env";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
 import { requirePlatformPage } from "@/lib/platform/guard";
+import { getGlobalSetting, PROMO_BANNER_KEY } from "@/lib/platform/settings";
+import { savePromoBannerAction } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +26,9 @@ export default async function PlatformPage({
 
   await requirePlatformPage();
   const dict = await getDictionary(lang);
+  const promoBanner = hasDatabase
+    ? await getGlobalSetting(PROMO_BANNER_KEY).catch(() => null)
+    : null;
 
   const rows = hasDatabase
     ? await db()
@@ -60,6 +65,33 @@ export default async function PlatformPage({
           </li>
         </ul>
       </nav>
+
+      <section aria-labelledby="banner-heading" className="mt-8 rounded-xl border border-slate-200 p-5 dark:border-slate-800">
+        <h2 id="banner-heading" className="text-lg font-semibold">
+          {dict.platform.bannerTitle}
+        </h2>
+        <p className="mt-1 max-w-xl text-xs text-slate-500">{dict.platform.bannerHint}</p>
+        <form action={savePromoBannerAction} className="mt-3 flex flex-wrap items-end gap-3">
+          <input type="hidden" name="lang" value={lang} />
+          <div className="flex min-w-64 flex-1 flex-col gap-1">
+            <label htmlFor="bannerText" className="text-sm font-medium">
+              {dict.platform.bannerField}
+            </label>
+            <input
+              id="bannerText"
+              name="bannerText"
+              defaultValue={promoBanner ?? ""}
+              className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 text-sm dark:border-slate-700 dark:bg-slate-900"
+            />
+          </div>
+          <button
+            type="submit"
+            className="inline-flex min-h-11 items-center rounded-full border border-slate-300 px-5 text-sm font-semibold dark:border-slate-700"
+          >
+            {dict.platform.bannerSave}
+          </button>
+        </form>
+      </section>
 
       <section aria-labelledby="tenants-heading" className="mt-8">
         <h2 id="tenants-heading" className="text-lg font-semibold">
