@@ -316,7 +316,21 @@
       "partners": "Partners",
       "events": "Events",
       "rooms": "Rooms",
-      "settings": "Settings"
+      "settings": "Settings",
+      "billing": "Billing"
+    },
+    "billing": {
+      "intro": "Invoices from Stay.WitUS for running this site. Pay by MoMo using the invoice code as your transfer reference.",
+      "momoTitle": "How to pay by MTN MoMo",
+      "momoSend": "Send the amount to",
+      "momoRef": "Use this exact reference",
+      "claim": "I've sent it",
+      "claimed": "Marked as sent. Stay.WitUS confirms receipt shortly.",
+      "empty": "No invoices.",
+      "due": "due",
+      "paid": "Paid",
+      "statusSent": "Awaiting payment",
+      "statusClaimed": "Awaiting confirmation"
     },
     "settings": {
       "intro": "The operational knobs: contact details, times, how booking behaves, and your cancellation policy. Every new booking snapshots the policy as it stood.",
@@ -610,6 +624,64 @@
   },
   "platform": {
     "title": "Stay.WitUS Platform",
+    "tenantsPage": {
+      "title": "Properties",
+      "createTitle": "New property",
+      "slugField": "Slug (URL-safe id, e.g. sankofa-house)",
+      "nameField": "Name",
+      "create": "Create property",
+      "editSave": "Save",
+      "taglineField": "Tagline",
+      "activeField": "Active (off = site fully dark)",
+      "domains": "domains",
+      "billingLink": "Billing",
+      "flagLabels": {
+        "events": "Events",
+        "dining": "Dining",
+        "concierge": "Concierge",
+        "virtualTour": "Virtual tour",
+        "announcements": "Announcements",
+        "hub": "Guest hub",
+        "comingSoon": "Coming soon page",
+        "poweredBy": "Powered-by badge"
+      },
+      "errors": {
+        "GENERIC": "That did not work. Please try again.",
+        "INVALID_SLUG": "Slugs are 3-40 lowercase letters, numbers, and dashes.",
+        "INVALID_NAME": "Give the property a name.",
+        "SLUG_TAKEN": "That slug already exists."
+      }
+    },
+    "billingPage": {
+      "title": "Billing",
+      "queueTitle": "MoMo transfers awaiting your confirmation",
+      "queueEmpty": "Nothing waiting. Claims appear here the moment a payer taps \"I've sent it\".",
+      "claimedAt": "claimed",
+      "confirm": "Confirm received",
+      "pricingTitle": "Pricing",
+      "setupField": "Setup fee (minor units)",
+      "monthlyField": "Monthly fee (minor units)",
+      "currencyField": "Currency",
+      "emailField": "Billing email",
+      "notesField": "Notes (private)",
+      "savePricing": "Save pricing",
+      "invoicesTitle": "Invoices",
+      "newInvoice": "New invoice",
+      "kindField": "Kind",
+      "kinds": { "setup": "Setup", "monthly": "Monthly", "custom": "Custom" },
+      "descriptionField": "Description",
+      "amountField": "Amount (minor units)",
+      "dueField": "Due date",
+      "send": "Create & send",
+      "void": "Void",
+      "markPaid": "Mark paid",
+      "statuses": { "draft": "Draft", "sent": "Sent", "paid": "Paid", "void": "Void", "overdue": "Overdue" },
+      "errors": {
+        "GENERIC": "That did not work. Please try again.",
+        "INVALID_AMOUNT": "Amounts are positive whole minor units.",
+        "INVALID_CURRENCY": "Currency is a 3-letter code like USD or GHS."
+      }
+    },
     "bannerTitle": "Landing-page promo banner",
     "bannerHint": "Shown across the top of stay.witus.online. Leave empty to hide. Your words - review before saving.",
     "bannerField": "Banner text",

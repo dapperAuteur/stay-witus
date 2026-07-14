@@ -1,4 +1,5 @@
 import { and, asc, desc, eq, gte, sql } from "drizzle-orm";
+import { pgErrorCode } from "@/lib/booking/holds";
 import { db, withTx } from "@/db";
 import { eventRsvps, events, tenants } from "@/db/schema";
 import { sendEmail } from "@/lib/mailer";
@@ -196,8 +197,7 @@ export async function createEvent(
         .returning({ id: events.id });
       return ok({ id: row.id });
     } catch (error) {
-      const code = (error as { code?: string })?.code;
-      if (code !== "23505" || attempt === 3) throw error;
+      if (pgErrorCode(error) !== "23505" || attempt === 3) throw error;
     }
   }
   return err("GENERIC", "Could not save the event. Please try again.");

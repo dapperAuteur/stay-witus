@@ -1,5 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { and, asc, eq, gt, isNull, sql } from "drizzle-orm";
+import { pgErrorCode } from "@/lib/booking/holds";
 import { db } from "@/db";
 import { hotelSettings, partnerEditTokens, partners, tenants } from "@/db/schema";
 import { sendEmail } from "@/lib/mailer";
@@ -93,8 +94,7 @@ export async function submitPartnerApplication(
       await notifyOwner(tenantId, name, input.category);
       return ok({ id: row.id });
     } catch (error) {
-      const code = (error as { code?: string })?.code;
-      if (code !== "23505" || attempt === 3) throw error;
+      if (pgErrorCode(error) !== "23505" || attempt === 3) throw error;
     }
   }
   return err("GENERIC", "Could not save the application. Please try again.");
