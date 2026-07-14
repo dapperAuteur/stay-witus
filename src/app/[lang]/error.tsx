@@ -11,13 +11,21 @@ export default function LangError({ reset }: { error: Error; reset: () => void }
       <p role="alert" className="text-slate-600 dark:text-slate-400">
         The page hit an unexpected error. Nothing was charged. Please try again.
       </p>
-      <button
-        type="button"
-        onClick={reset}
-        className="inline-flex min-h-11 items-center rounded-full border border-slate-300 px-6 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-slate-700"
-      >
-        Try again
-      </button>
+      <div className="flex flex-wrap justify-center gap-3">
+        <button
+          type="button"
+          onClick={reset}
+          className="inline-flex min-h-11 items-center rounded-full border border-slate-300 px-6 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-slate-700"
+        >
+          Try again
+        </button>
+        <a
+          href="/"
+          className="inline-flex min-h-11 items-center rounded-full border border-slate-300 px-6 text-sm font-medium focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-slate-700"
+        >
+          Back to home
+        </a>
+      </div>
     </main>
   );
 }
