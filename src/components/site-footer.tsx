@@ -91,6 +91,17 @@ export function SiteFooter({ lang }: { lang: Locale }) {
                   Roadmap
                 </Link>
               </li>
+              <li>
+                <Link href={`/${lang}/sign-in`} className={linkClasses}>
+                  Sign in
+                </Link>
+              </li>
+              <li>
+                {/* 404s for non-owners; the door BAM asked for. */}
+                <Link href={`/${lang}/platform`} className={linkClasses}>
+                  Platform admin
+                </Link>
+              </li>
             </ul>
           </div>
 

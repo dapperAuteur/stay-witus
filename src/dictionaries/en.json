@@ -209,7 +209,11 @@
     "submit": "Email me a sign-in link",
     "sent": "Check your email. If that address has access, a sign-in link is on its way. It expires in 10 minutes.",
     "invalid": "That does not look like an email address. Please check it and try again.",
-    "unavailable": "Sign-in is not available right now. Please try again later."
+    "unavailable": "Sign-in is not available right now. Please try again later.",
+    "demoHeading": "Just exploring?",
+    "demoHint": "One tap, no email needed. Owner sees everything; front desk sees daily operations. Everything resets at midnight.",
+    "demoAdmin": "Try the demo as the owner",
+    "demoVisitor": "Try the demo as front desk"
   },
   "admin": {
     "title": "Front desk",

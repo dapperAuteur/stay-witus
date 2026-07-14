@@ -13,3 +13,10 @@ for (const file of [".env.local", ".env"]) {
 // without production secrets (it still needs the database URL to do anything).
 process.env.BETTER_AUTH_SECRET ??= "vitest-only-secret-never-production";
 process.env.BETTER_AUTH_URL ??= "http://localhost:3000";
+
+// Tests must NEVER send real email: strip Mailgun creds (now present in
+// .env.local) so the mailer always uses its console dev-log fallback — the
+// magic-link tests capture links from that log, and real sends to
+// itest-*@example.com would burn sender reputation.
+delete process.env.MAILGUN_API_KEY;
+delete process.env.MAILGUN_DOMAIN;
