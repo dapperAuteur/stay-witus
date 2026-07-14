@@ -210,6 +210,94 @@
     "invalid": "That does not look like an email address. Please check it and try again.",
     "unavailable": "Sign-in is not available right now. Please try again later."
   },
+  "admin": {
+    "title": "Front desk",
+    "roleLabel": "Signed in as",
+    "nav": {
+      "today": "Today",
+      "reservations": "Reservations",
+      "calendar": "Calendar",
+      "pricing": "Pricing",
+      "design": "Design"
+    },
+    "today": {
+      "arrivals": "Arriving today",
+      "departures": "Leaving today",
+      "nobody": "Nobody today.",
+      "inHouse": "In house",
+      "awaitingApproval": "Requests to review",
+      "pendingPayment": "Awaiting payment"
+    },
+    "reservations": {
+      "filterLabel": "Show",
+      "all": "All",
+      "empty": "No reservations match.",
+      "guest": "Guest",
+      "room": "Room",
+      "dates": "Dates",
+      "state": "Status",
+      "payment": "Payment",
+      "total": "Total",
+      "actions": {
+        "approve": "Approve",
+        "check_in": "Check in",
+        "check_out": "Check out",
+        "cancel": "Cancel",
+        "no_show": "No-show"
+      }
+    },
+    "calendar": {
+      "prevMonth": "Previous month",
+      "nextMonth": "Next month",
+      "unit": "Unit",
+      "free": "Free",
+      "block": "Block",
+      "unblock": "Unblock",
+      "legend": "B = booking, X = blockout, H = hold. Tap a free day to block it; tap an X to release it.",
+      "noUnits": "No units yet. Add room types and units first."
+    },
+    "pricing": {
+      "roomTypeLabel": "Room type",
+      "show": "Show",
+      "baseRate": "Base rate",
+      "perNight": "per night",
+      "overrides": "Price overrides touching this month",
+      "noOverrides": "None. The base rate applies every night.",
+      "addOverride": "Add an override",
+      "labelField": "Name",
+      "start": "First night",
+      "end": "Last night",
+      "rateField": "Nightly rate in pesewas (GHS 500.00 = 50000)",
+      "priorityField": "Priority (higher wins)",
+      "daysField": "Only these days (none checked = every day)",
+      "dows": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      "create": "Add override",
+      "delete": "Delete",
+      "deleteConfirm": "Delete this override"
+    },
+    "design": {
+      "intro": "Arrange your homepage. Everything here stays inside layouts we designed, so your site keeps working on every phone.",
+      "preset": "Color preset",
+      "fontPair": "Font pairing",
+      "sections": "Homepage sections",
+      "orderField": "Position",
+      "visibleField": "Visible",
+      "variantField": "Layout",
+      "heroNote": "The welcome section is always visible.",
+      "save": "Save design",
+      "saved": "Design saved. Open your homepage to see it."
+    },
+    "ok": "Done.",
+    "errors": {
+      "GENERIC": "That did not work. Please try again.",
+      "OCCUPIED": "A booking or blockout already covers those dates.",
+      "INVALID_TRANSITION": "That reservation has moved on. Refresh and try again.",
+      "INVALID_LABEL": "Give the override a name.",
+      "INVALID_RATE": "Rate must be a positive whole number in pesewas.",
+      "INVALID_RANGE": "The end date is before the start date.",
+      "INVALID_DATE": "Those dates do not look right."
+    }
+  },
   "platform": {
     "title": "Stay.WitUS Platform",
     "tenants": "Properties",
