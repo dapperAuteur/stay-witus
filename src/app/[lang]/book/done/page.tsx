@@ -86,6 +86,17 @@ export default async function BookDonePage({
               {r.checkIn} → {r.checkOut}
             </dd>
           </div>
+          {r.discountMinor > 0 ? (
+            <div className="flex justify-between">
+              <dt>
+                {b.discount}
+                {r.promoCode ? <span className="text-slate-500"> ({r.promoCode})</span> : null}
+              </dt>
+              <dd className="font-semibold">
+                −{formatMoneyMinor(r.discountMinor, r.currency)}
+              </dd>
+            </div>
+          ) : null}
           <div className="flex justify-between">
             <dt>{b.total}</dt>
             <dd className="font-semibold">{formatMoneyMinor(r.totalMinor, r.currency)}</dd>

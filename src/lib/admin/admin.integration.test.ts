@@ -4,6 +4,7 @@
 // today board. Throwaway tenant, cascade-deleted in afterAll.
 
 import { randomUUID } from "node:crypto";
+import { tableExists } from "@/lib/db-probe";
 import { and, eq, isNull } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { db } from "@/db";
@@ -19,8 +20,11 @@ import { confirmHold, createHold } from "@/lib/booking/holds";
 const hasDb = Boolean(
   process.env.STORAGE_DATABASE_URL ?? process.env.DATABASE_URL,
 );
+// Booking inserts include migration-0002 columns (drizzle lists every schema
+// column), so these suites need the migration; they self-skip until task 07.
+const ready = hasDb && (await tableExists("promo_codes"));
 
-describe.skipIf(!hasDb)("admin surfaces against Neon", () => {
+describe.skipIf(!ready)("admin surfaces against Neon (needs migration 0002)", () => {
   let tenantId: string;
   let roomTypeId: string;
   let unitId: string;

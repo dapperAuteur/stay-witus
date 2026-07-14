@@ -9,6 +9,7 @@ import {
   siteSections,
 } from "@/db/schema";
 import type { Dictionary } from "@/lib/dictionaries";
+import { latestPublishedAnnouncement } from "@/lib/campaigns";
 import { resolveSectionConfig, type SectionKey } from "@/lib/sections";
 import type { TenantRecord } from "@/lib/tenant";
 import { ConciergeSection } from "./concierge-section";
@@ -119,11 +120,27 @@ export async function HotelHome({
     ]);
 
   const byKey = new Map(sectionRows.map((row) => [row.key, row]));
+  const announcement = await latestPublishedAnnouncement(tenant.id).catch(() => null);
   const settings = settingsRows[0];
   const timezone = settings?.timezone ?? "Africa/Accra";
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-10">
+      {announcement ? (
+        <aside
+          role={announcement.urgency === "urgent" ? "alert" : "status"}
+          className={`mb-6 rounded-xl border p-4 text-sm ${
+            announcement.urgency === "urgent"
+              ? "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200"
+              : "border-slate-200 dark:border-slate-800"
+          }`}
+        >
+          <p className="font-semibold">{announcement.title}</p>
+          <p className="mt-1 whitespace-pre-line text-slate-700 dark:text-slate-300">
+            {announcement.body}
+          </p>
+        </aside>
+      ) : null}
       {config.order.map((key) => {
         switch (key) {
           case "hero":

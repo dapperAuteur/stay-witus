@@ -77,6 +77,8 @@ export async function confirmBookingAction(formData: FormData): Promise<void> {
     adults: Number(formData.get("adults") ?? 1) || 1,
     children: Number(formData.get("children") ?? 0) || 0,
     specialRequests: String(formData.get("specialRequests") ?? "") || undefined,
+    promoCode: String(formData.get("promoCode") ?? "") || undefined,
+    marketingOptIn: Boolean(formData.get("marketingOptIn")),
   });
   if (!confirmed.ok) {
     const target =

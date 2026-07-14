@@ -15,6 +15,13 @@
       "when": 1783949551691,
       "tag": "0001_extensions_and_exclusion",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784044536316,
+      "tag": "0002_lowly_sunset_bain",
+      "breakpoints": true
     }
   ]
 }

@@ -73,3 +73,22 @@ export const announcementDeliveries = pgTable(
     index("announcement_deliveries_announcement_idx").on(t.announcementId),
   ],
 );
+
+/**
+ * Marketing suppression list: unsubscribes (and later, complaints). Checked
+ * before every campaign send; transactional mail (confirmations, urgent
+ * operational notices) is a different consent basis and does NOT check this.
+ */
+export const emailSuppressions = pgTable(
+  "email_suppressions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tenantId: uuid("tenant_id")
+      .notNull()
+      .references(() => tenants.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    reason: text("reason").notNull().default("unsubscribe"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [unique("email_suppressions_tenant_email_uq").on(t.tenantId, t.email)],
+);

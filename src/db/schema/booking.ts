@@ -1,4 +1,5 @@
 import {
+  boolean,
   date,
   index,
   integer,
@@ -141,6 +142,12 @@ export const reservations = pgTable(
       penaltyPercent?: number;
     }>(),
     specialRequests: text("special_requests"),
+    /** Marketing consent captured at booking (plans/09); never pre-checked. */
+    marketingOptIn: boolean("marketing_opt_in").notNull().default(false),
+    marketingOptInAt: timestamp("marketing_opt_in_at", { withTimezone: true }),
+    /** Snapshot of the applied promo, if any — survives later code edits. */
+    promoCode: text("promo_code"),
+    discountMinor: integer("discount_minor").notNull().default(0),
     source: text("source").notNull().default("website"),
     adminNotes: text("admin_notes"),
     /** Null for accountless guests; set when a stay account is activated. */
