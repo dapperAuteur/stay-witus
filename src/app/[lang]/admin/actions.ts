@@ -28,6 +28,14 @@ import {
 } from "@/lib/campaigns";
 import { localToday } from "@/lib/admin/today";
 import {
+  cancelRsvp,
+  createEvent,
+  deleteEvent,
+  updateEvent,
+  type EventInput,
+  type EventKind,
+} from "@/lib/events";
+import {
   issueEditToken,
   setPartnerStatus,
   type PartnerStatusAction,
@@ -371,4 +379,59 @@ export async function issueEditLinkAction(formData: FormData): Promise<void> {
   );
   if (!result.ok) backTo(back, "error", result.code);
   redirect(`${back}?link=${encodeURIComponent(result.data.url)}`);
+}
+
+function eventInput(formData: FormData): EventInput {
+  const cap = Number(formData.get("capacity"));
+  return {
+    title: String(formData.get("title") ?? ""),
+    description: String(formData.get("description") ?? ""),
+    kind: String(formData.get("kind") ?? "hotel") as EventKind,
+    // datetime-local carries no zone; Accra is UTC year-round so the wall
+    // clock the owner typed IS the instant.
+    startsAt: new Date(`${String(formData.get("startsAt") ?? "")}:00Z`),
+    locationText: String(formData.get("locationText") ?? ""),
+    capacity: Number.isInteger(cap) && cap > 0 ? cap : null,
+    rsvpMode: formData.get("rsvp") ? "free_rsvp" : "none",
+    isPublished: Boolean(formData.get("isPublished")),
+  };
+}
+
+export async function createEventAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/events`;
+  const ctx = await guardOr403("manager", lang);
+  const result = await createEvent(ctx.tenant.id, eventInput(formData));
+  if (!result.ok) backTo(back, "error", result.code);
+  backTo(back, "ok", "1");
+}
+
+export async function updateEventAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/events`;
+  const ctx = await guardOr403("manager", lang);
+  const result = await updateEvent(
+    ctx.tenant.id,
+    String(formData.get("eventId") ?? ""),
+    eventInput(formData),
+  );
+  if (!result.ok) backTo(back, "error", result.code);
+  backTo(back, "ok", "1");
+}
+
+export async function deleteEventAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/events`;
+  const ctx = await guardOr403("manager", lang);
+  await deleteEvent(ctx.tenant.id, String(formData.get("eventId") ?? ""));
+  backTo(back, "ok", "1");
+}
+
+export async function cancelRsvpAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/events`;
+  const ctx = await guardOr403("front_desk", lang);
+  const result = await cancelRsvp(ctx.tenant.id, String(formData.get("rsvpId") ?? ""));
+  if (!result.ok) backTo(back, "error", result.code);
+  backTo(back, "ok", "1");
 }

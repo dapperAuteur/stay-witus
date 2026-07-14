@@ -206,6 +206,28 @@
     "contactCall": "Call the front desk",
     "contactEmail": "Email"
   },
+  "events": {
+    "title": "What's on",
+    "intro": "Hotel evenings, cultural nights, and area happenings. Reserve a spot where offered.",
+    "empty": "Nothing scheduled right now. Check back soon.",
+    "spotsLeft": "spots left",
+    "fullBadge": "Full",
+    "rsvpTitle": "Reserve your spot",
+    "nameField": "Your name",
+    "emailField": "Email",
+    "phoneField": "Phone (optional)",
+    "partyField": "Party size",
+    "submit": "Reserve",
+    "reservedTitle": "You're on the list",
+    "reservedBody": "Your spot is reserved. A confirmation email is on its way.",
+    "errors": {
+      "GENERIC": "That did not work. Please try again.",
+      "INVALID_GUEST": "Give us your name and a valid email.",
+      "INVALID_PARTY": "Party size must be between 1 and 10.",
+      "ALREADY_RSVPED": "This email already has a spot reserved for this event.",
+      "EVENT_FULL": "This event just filled up. Sorry!"
+    }
+  },
   "partnerApply": {
     "title": "Work with our guests",
     "intro": "Drivers, guides, food, nightlife, wellness: apply to be recommended to guests. The hotel reviews every application; guests contact you directly.",
@@ -269,7 +291,29 @@
       "content": "Content",
       "guide": "Guide",
       "announce": "Announce",
-      "partners": "Partners"
+      "partners": "Partners",
+      "events": "Events"
+    },
+    "events": {
+      "intro": "Create events, publish them, and watch the RSVP list fill. Announce them to guests from the Announce tab.",
+      "createTitle": "New event",
+      "titleField": "Title",
+      "descriptionField": "Description",
+      "kindField": "Kind",
+      "kinds": { "hotel": "Hotel event", "cultural": "Cultural", "seasonal": "Seasonal", "area": "Area happening" },
+      "startsField": "Starts (local time)",
+      "locationField": "Location",
+      "capacityField": "Capacity (blank = unlimited)",
+      "rsvpField": "Guests can reserve spots",
+      "publishedField": "Published",
+      "create": "Create event",
+      "save": "Save",
+      "delete": "Delete",
+      "rsvps": "reserved",
+      "rsvpListTitle": "Reservations",
+      "cancelRsvp": "Cancel",
+      "noRsvps": "No reservations yet.",
+      "empty": "No events yet. The Highlife night writes itself."
     },
     "partners": {
       "intro": "Applications wait at the top. Approve who you trust; suspend hides someone instantly and kills their edit links.",

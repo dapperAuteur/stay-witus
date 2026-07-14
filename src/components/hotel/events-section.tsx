@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { events } from "@/db/schema";
 import type { Dictionary } from "@/lib/dictionaries";
 import { SectionShell } from "./section-shell";
@@ -8,10 +9,12 @@ export function EventsSection({
   upcoming,
   timezone,
   dict,
+  lang,
 }: {
   upcoming: EventRow[];
   timezone: string;
   dict: Dictionary;
+  lang: string;
 }) {
   if (upcoming.length === 0) return null;
   const formatter = new Intl.DateTimeFormat("en-GH", {
@@ -55,6 +58,14 @@ export function EventsSection({
           </li>
         ))}
       </ul>
+      <p className="mt-4">
+        <Link
+          href={`/${lang}/events`}
+          className="inline-flex min-h-11 items-center text-sm font-medium underline underline-offset-4 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+        >
+          {dict.events.rsvpTitle} →
+        </Link>
+      </p>
     </SectionShell>
   );
 }
