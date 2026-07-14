@@ -18,7 +18,9 @@
       "Bash(python3 -c \"import json; json.load\\(open\\('src/dictionaries/en.json'\\)\\); print\\('json valid'\\)\")",
       "Bash(curl -sS -o /dev/null \"http://localhost:3117/api/health\")",
       "Bash(curl -sS -H \"Host: demo.stay.witus.online\" http://localhost:3117/en)",
-      "Bash(curl -sS -H \"Host: stay.witus.online\" http://localhost:3117/en)"
+      "Bash(curl -sS -H \"Host: stay.witus.online\" http://localhost:3117/en)",
+      "Bash(curl -sS -o /dev/null \"http://localhost:3118/api/health\")",
+      "Bash(curl -sS -H \"Host: demo.stay.witus.online\" http://localhost:3118/en)"
     ]
   }
 }

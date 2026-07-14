@@ -34,6 +34,8 @@ export interface TenantTheme {
   colors?: Record<string, string>;
   // ── Rung 2 section control (BAM decision 2026-07-13; src/lib/sections.ts
   //    normalizes all four — unknown keys/variants collapse to defaults) ──
+  /** Curated template key (src/lib/templates.ts) — the design system. */
+  templateKey?: string;
   /** Curated pairing key (src/lib/font-pairs.ts) — never free font names. */
   fontPairKey?: string;
   /** Homepage section order; missing known sections append in default order. */

@@ -159,6 +159,7 @@ export async function saveDesignAction(formData: FormData): Promise<void> {
   positions.sort((a, b) => a.pos - b.pos);
 
   const result = await updateTenantDesign(ctx.tenant.id, {
+    templateKey: String(formData.get("templateKey") ?? ""),
     presetKey: String(formData.get("presetKey") ?? ""),
     fontPairKey: String(formData.get("fontPairKey") ?? ""),
     sectionOrder: positions.map((p) => p.key),

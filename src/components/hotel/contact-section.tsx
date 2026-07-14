@@ -1,5 +1,6 @@
 import type { hotelSettings } from "@/db/schema";
 import type { Dictionary } from "@/lib/dictionaries";
+import type { TemplateDef } from "@/lib/templates";
 import { SectionShell } from "./section-shell";
 
 type SettingsRow = typeof hotelSettings.$inferSelect;
@@ -10,15 +11,17 @@ const ACTION_CLASSES =
 export function ContactSection({
   settings,
   dict,
+  tpl,
 }: {
   settings: SettingsRow | undefined;
   dict: Dictionary;
+  tpl: TemplateDef;
 }) {
   if (!settings) return null;
   const s = dict.sections;
 
   return (
-    <SectionShell id="contact" title={s.contactTitle}>
+    <SectionShell tpl={tpl} id="contact" title={s.contactTitle}>
       {settings.address ? (
         <address className="not-italic leading-relaxed text-slate-600 dark:text-slate-400">
           {settings.address}

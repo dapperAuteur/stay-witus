@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { events } from "@/db/schema";
 import type { Dictionary } from "@/lib/dictionaries";
+import type { TemplateDef } from "@/lib/templates";
 import { SectionShell } from "./section-shell";
 
 type EventRow = typeof events.$inferSelect;
@@ -10,11 +11,13 @@ export function EventsSection({
   timezone,
   dict,
   lang,
+  tpl,
 }: {
   upcoming: EventRow[];
   timezone: string;
   dict: Dictionary;
   lang: string;
+  tpl: TemplateDef;
 }) {
   if (upcoming.length === 0) return null;
   const formatter = new Intl.DateTimeFormat("en-GH", {
@@ -27,12 +30,12 @@ export function EventsSection({
   });
 
   return (
-    <SectionShell id="events" title={dict.sections.eventsTitle}>
+    <SectionShell tpl={tpl} id="events" title={dict.sections.eventsTitle}>
       <ul className="flex flex-col gap-4">
         {upcoming.map((event) => (
           <li
             key={event.id}
-            className="relative rounded-xl border border-slate-200 p-5 transition-shadow focus-within:ring-2 focus-within:ring-current hover:shadow-md dark:border-slate-800"
+            className={`relative ${tpl.t.card} p-5 transition-shadow focus-within:ring-2 focus-within:ring-current hover:shadow-md`}
           >
             <p
               className="text-sm font-semibold"
