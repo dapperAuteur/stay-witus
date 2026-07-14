@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { partners } from "@/db/schema";
 import type { Dictionary } from "@/lib/dictionaries";
 import { SectionShell } from "./section-shell";
@@ -11,9 +12,11 @@ const ACTION_CLASSES =
 export function ConciergeSection({
   approved,
   dict,
+  lang,
 }: {
   approved: PartnerRow[];
   dict: Dictionary;
+  lang: string;
 }) {
   if (approved.length === 0) return null;
   const s = dict.sections;
@@ -64,6 +67,14 @@ export function ConciergeSection({
           </li>
         ))}
       </ul>
+      <p className="mt-4">
+        <Link
+          href={`/${lang}/partners/apply`}
+          className="inline-flex min-h-11 items-center text-sm font-medium underline underline-offset-4 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+        >
+          {dict.partnerApply.title} →
+        </Link>
+      </p>
     </SectionShell>
   );
 }

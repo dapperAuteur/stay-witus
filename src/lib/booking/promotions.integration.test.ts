@@ -81,12 +81,37 @@ describe.skipIf(!ready)("promotions against Neon (needs migration 0002)", () => 
     expect(confirmed.data.depositMinor).toBe(22_500);
   });
 
-  it("max redemptions holds: second use fails, room stays unbooked by it", async () => {
-    const second = await bookWith("TEST25", "promo-b");
-    expect(second).toMatchObject({ ok: false, code: "PROMO_INVALID" });
-    // No promo: books fine on the second unit.
-    const plain = await bookWith(undefined, "promo-c");
-    expect(plain.ok && plain.data.discountMinor === 0).toBe(true);
+  it("max redemptions holds; the hold survives and confirms without the code", async () => {
+    const hold = await createHold({
+      tenantId,
+      roomTypeId,
+      checkIn: "2034-05-01",
+      checkOut: "2034-05-03",
+      holdSession: "promo-b",
+    });
+    expect(hold.ok).toBe(true);
+    if (!hold.ok) return;
+
+    // TEST25 was exhausted by the first booking (maxRedemptions 1).
+    const withCode = await confirmHold({
+      tenantId,
+      claimId: hold.data.claimId,
+      holdSession: "promo-b",
+      guestName: "Promo Guest",
+      guestEmail: "promo-b@example.com",
+      promoCode: "TEST25",
+    });
+    expect(withCode).toMatchObject({ ok: false, code: "PROMO_INVALID" });
+
+    // The failed confirm must NOT burn the hold: retry without the code works.
+    const retry = await confirmHold({
+      tenantId,
+      claimId: hold.data.claimId,
+      holdSession: "promo-b",
+      guestName: "Promo Guest",
+      guestEmail: "promo-b@example.com",
+    });
+    expect(retry.ok && retry.data.discountMinor === 0).toBe(true);
   });
 
   it("campaign audience honors opt-in and suppression", async () => {
