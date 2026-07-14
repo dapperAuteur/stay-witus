@@ -1,7 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python3 -)"
+      "Bash(python3 -)",
+      "Bash(pnpm add *)",
+      "Bash(pnpm seed:tenants)",
+      "Bash(pnpm seed:demo)",
+      "Bash(curl -sS -o /dev/null \"http://localhost:3115/api/health\")",
+      "Bash(curl -sS -H \"Host: demo.stay.witus.online\" http://localhost:3115/en)",
+      "Bash(curl -sS -H \"Host: demo.stay.witus.online\" \"http://localhost:3115/en/book?checkIn=2026-08-10&checkOut=2026-08-13\")",
+      "Bash(curl -sS -H \"Host: demo.stay.witus.online\" \"http://localhost:3115/en/book?checkIn=2026-12-20&checkOut=2026-12-22\")",
+      "Bash(grep -oE \"GHS[^<]{0,10}\")",
+      "Bash(curl -sS -H \"Host: stay.witus.online\" http://localhost:3115/en)"
     ]
   }
 }

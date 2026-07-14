@@ -55,7 +55,14 @@ export function PlatformLanding({
           {d.statusBadge}
         </p>
         <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">{d.statusBody}</p>
-        <p className="mt-4">
+        <p className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+          <a
+            href="https://demo.stay.witus.online"
+            className="inline-flex min-h-11 items-center rounded-full px-5 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+            style={{ background: "var(--brand-accent)", color: "var(--brand-accent-fg)" }}
+          >
+            {d.demoCta}
+          </a>
           <Link
             href={`/${lang}/roadmap`}
             className="inline-flex min-h-11 items-center text-sm font-semibold underline underline-offset-4 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
