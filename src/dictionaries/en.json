@@ -2,7 +2,11 @@
   "common": {
     "brand": "Stay.WitUS",
     "loading": "Loading",
-    "backHome": "Back to home"
+    "backHome": "Back to home",
+    "signedInAs": "Signed in as",
+    "adminLink": "Front desk",
+    "platformLink": "Platform admin",
+    "signOut": "Sign out"
   },
   "home": {
     "bookYourStay": "Book your stay",
@@ -387,7 +391,11 @@
       "recordType": "Type",
       "recordName": "Name",
       "recordValue": "Value",
-      "cnameHint": "Typical setup: a CNAME from the subdomain to cname.vercel-dns.com. Press Check after saving DNS.",
+      "cnameHint": "Typical setup: add a CNAME for the subdomain pointing to",
+      "step1": "Open your DNS provider (wherever witus.online's DNS lives) and go to DNS records.",
+      "step2": "Add exactly this record. Use the copy buttons; typing it by hand invites typos.",
+      "step3": "Save the record, wait a minute, then press Check again below. Repeat until it says Verified.",
+      "checkAgain": "Check again",
       "noDomains": "No domains mapped.",
       "check": "Check",
       "remove": "Remove",

@@ -6,6 +6,7 @@ import { hasVercelDomains } from "@/lib/env";
 import { listTenantsWithDomains } from "@/lib/platform/domains";
 import { requirePlatformPage } from "@/lib/platform/guard";
 import { getDomainStatus } from "@/lib/vercel-domains";
+import { CopyButton } from "@/components/copy-button";
 import {
   addDomainAction,
   checkDomainAction,
@@ -81,30 +82,46 @@ export default async function PlatformDomainsPage({
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
                 {d.pendingDns}
               </p>
-              {status?.verification?.length ? (
-                <div className="mt-3 overflow-x-auto">
-                  <table className="text-xs">
-                    <thead>
-                      <tr className="text-left text-slate-500">
-                        <th scope="col" className="pr-6">{d.recordType}</th>
-                        <th scope="col" className="pr-6">{d.recordName}</th>
-                        <th scope="col">{d.recordValue}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+              <ol className="mt-3 list-decimal space-y-3 pl-5 text-sm">
+                <li>{d.step1}</li>
+                <li>
+                  {d.step2}
+                  {status?.verification?.length ? (
+                    <ul className="mt-2 space-y-3">
                       {status.verification.map((record) => (
-                        <tr key={`${record.type}-${record.domain}`}>
-                          <td className="pr-6 font-mono">{record.type}</td>
-                          <td className="pr-6 font-mono">{record.domain}</td>
-                          <td className="break-all font-mono">{record.value}</td>
-                        </tr>
+                        <li key={`${record.type}-${record.domain}`} className="flex flex-col gap-1">
+                          <span className="text-xs text-slate-500">
+                            {d.recordType}: <strong className="font-mono">{record.type}</strong>
+                          </span>
+                          <span className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                            {d.recordName}: <CopyButton value={record.domain} label={d.recordName} />
+                          </span>
+                          <span className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                            {d.recordValue}: <CopyButton value={record.value} label={d.recordValue} />
+                          </span>
+                        </li>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <p className="mt-2 text-xs text-slate-500">{d.cnameHint}</p>
-              )}
+                    </ul>
+                  ) : (
+                    <span className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                      {d.cnameHint} <CopyButton value="cname.vercel-dns.com" label={d.recordValue} />
+                    </span>
+                  )}
+                </li>
+                <li>{d.step3}</li>
+              </ol>
+              <form action={checkDomainAction} className="mt-4">
+                <input type="hidden" name="lang" value={lang} />
+                <input type="hidden" name="host" value={host} />
+                <button
+                  type="submit"
+                  className="inline-flex min-h-11 items-center rounded-full px-6 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                  style={{ background: "var(--brand-accent)", color: "var(--brand-accent-fg)" }}
+                >
+                  {d.checkAgain}
+                  <span className="sr-only"> {host}</span>
+                </button>
+              </form>
             </>
           )}
         </section>

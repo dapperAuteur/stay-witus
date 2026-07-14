@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
+import { SessionBar } from "@/components/session-bar";
 import { brandCssVars } from "@/lib/brand-presets";
-import { hasLocale } from "@/lib/dictionaries";
+import { getDictionary, hasLocale } from "@/lib/dictionaries";
 import { fontPairCssVars } from "@/lib/fonts";
 import { resolveTenant } from "@/lib/tenant";
 
@@ -17,6 +18,7 @@ export default async function LangLayout({
 }) {
   const { lang } = await params;
   if (!hasLocale(lang)) notFound();
+  const dict = await getDictionary(lang);
 
   const tenant = await resolveTenant().catch(() => null);
   const vars = {
@@ -29,6 +31,7 @@ export default async function LangLayout({
       style={{ ...vars, fontFamily: "var(--font-body, inherit)" }}
       className="min-h-dvh"
     >
+      <SessionBar lang={lang} dict={dict} />
       {children}
     </div>
   );
