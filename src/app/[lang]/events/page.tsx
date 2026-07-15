@@ -6,6 +6,7 @@ import { resolveTenant } from "@/lib/tenant";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { hotelSettings } from "@/db/schema";
+import Link from "next/link";
 import { rsvpAction } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -152,6 +153,14 @@ export default async function EventsPage({
           })}
         </ul>
       )}
+      <p className="mt-10">
+        <Link
+          href={`/${lang}/venue`}
+          className="inline-flex min-h-11 items-center text-sm font-medium underline underline-offset-4 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+        >
+          {dict.venue.title} →
+        </Link>
+      </p>
     </main>
   );
 }

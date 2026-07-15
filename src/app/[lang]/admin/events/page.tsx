@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { requireStaffPage } from "@/lib/admin/guard";
 import { EVENT_KINDS, listEventsAdmin, listRsvps } from "@/lib/events";
+import { INQUIRY_STATUSES, listInquiriesAdmin } from "@/lib/venue";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
 import {
   cancelRsvpAction,
   createEventAction,
   deleteEventAction,
+  setInquiryStatusAction,
   updateEventAction,
 } from "../actions";
 import { Flash } from "../flash";
@@ -153,6 +155,7 @@ export default async function AdminEventsPage({
   const sp = await searchParams;
 
   const rows = await listEventsAdmin(ctx.tenant.id);
+  const inquiries = await listInquiriesAdmin(ctx.tenant.id);
   const rsvpsByEvent = new Map(
     await Promise.all(
       rows.map(
@@ -183,6 +186,47 @@ export default async function AdminEventsPage({
             {a.create}
           </button>
         </form>
+      </section>
+
+      <section aria-label={a.inquiriesTitle} className="mt-8 rounded-xl border border-slate-200 p-5 dark:border-slate-800">
+        <h2 className="text-lg font-semibold">{a.inquiriesTitle}</h2>
+        {inquiries.length === 0 ? (
+          <p className="mt-2 text-sm text-slate-500">{a.inquiriesEmpty}</p>
+        ) : (
+          <ul className="mt-3 flex flex-col gap-3">
+            {inquiries.map((inquiry) => (
+              <li key={inquiry.id} className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3 text-sm last:border-b-0 dark:border-slate-800">
+                <span className="min-w-0">
+                  <strong>{inquiry.name}</strong>
+                  <span className="text-slate-500">
+                    {" "}· {inquiry.email}{inquiry.phone ? ` · ${inquiry.phone}` : ""}
+                    {inquiry.eventType ? ` · ${inquiry.eventType}` : ""}
+                    {inquiry.preferredDate ? ` · ${inquiry.preferredDate}` : ""}
+                    {inquiry.partySize ? ` · ×${inquiry.partySize}` : ""}
+                    {inquiry.budgetRange ? ` · ${inquiry.budgetRange}` : ""}
+                  </span>
+                  {inquiry.message ? (
+                    <span className="mt-1 block text-xs text-slate-600 dark:text-slate-400">{inquiry.message}</span>
+                  ) : null}
+                </span>
+                <form action={setInquiryStatusAction} className="flex items-center gap-2">
+                  <input type="hidden" name="lang" value={lang} />
+                  <input type="hidden" name="inquiryId" value={inquiry.id} />
+                  <label className="sr-only" htmlFor={`inq-${inquiry.id}`}>{a.setStatus}</label>
+                  <select id={`inq-${inquiry.id}`} name="status" defaultValue={inquiry.status} className={INPUT}>
+                    {INQUIRY_STATUSES.map((status) => (
+                      <option key={status} value={status}>{a.inquiryStatuses[status]}</option>
+                    ))}
+                  </select>
+                  <button type="submit" className={BUTTON}>
+                    {a.setStatus}
+                    <span className="sr-only"> {inquiry.name}</span>
+                  </button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       {rows.length === 0 ? (
