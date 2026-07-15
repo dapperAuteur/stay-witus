@@ -317,7 +317,52 @@
       "events": "Events",
       "rooms": "Rooms",
       "settings": "Settings",
-      "billing": "Billing"
+      "billing": "Billing",
+      "support": "Support"
+    },
+    "support": {
+      "intro": "Something broken, confusing, or missing? Open a thread; Stay.WitUS answers here.",
+      "newTitle": "New thread",
+      "subjectField": "Subject",
+      "categoryField": "Category",
+      "categories": {
+        "bug": "Something is broken",
+        "ui_ux": "Confusing or hard to use",
+        "feature_request": "Feature request",
+        "question": "Question",
+        "content": "Content help",
+        "billing": "Billing",
+        "other": "Other"
+      },
+      "bodyField": "What happened? What did you expect?",
+      "recordingField": "Screen recording link (Loom, Drive - optional, https)",
+      "open": "Open thread",
+      "reply": "Reply",
+      "replyField": "Your reply",
+      "empty": "No threads. When something bites, tell us here.",
+      "statuses": {
+        "open": "Open",
+        "waiting_user": "Replied - your turn",
+        "waiting_admin": "Waiting on Stay.WitUS",
+        "resolved_pending_confirm": "Marked fixed - confirm?",
+        "resolved_user_confirmed": "Fixed",
+        "resolved_user_disputed": "Disputed",
+        "closed": "Closed"
+      },
+      "confirmPrompt": "Stay.WitUS marked this resolved. Did the fix work?",
+      "confirmYes": "Yes, it's fixed",
+      "confirmNo": "No, still broken",
+      "disputeField": "What's still wrong?",
+      "you": "You",
+      "admin": "Stay.WitUS",
+      "recording": "Screen recording",
+      "errors": {
+        "GENERIC": "That did not work. Please try again.",
+        "INVALID_SUBJECT": "Give it a subject.",
+        "INVALID_BODY": "Describe the issue.",
+        "INVALID_URL": "Recording links must start with https://",
+        "THREAD_CLOSED": "This thread is closed."
+      }
     },
     "billing": {
       "intro": "Invoices from Stay.WitUS for running this site. Pay by MoMo using the invoice code as your transfer reference.",
@@ -681,6 +726,13 @@
         "INVALID_AMOUNT": "Amounts are positive whole minor units.",
         "INVALID_CURRENCY": "Currency is a 3-letter code like USD or GHS."
       }
+    },
+    "supportPage": {
+      "title": "Support",
+      "queueHint": "Waiting-on-you and disputed threads float to the top.",
+      "resolve": "Mark resolved",
+      "close": "Close",
+      "empty": "Inbox zero."
     },
     "bannerTitle": "Landing-page promo banner",
     "bannerHint": "Shown across the top of stay.witus.online. Leave empty to hide. Your words - review before saving.",
