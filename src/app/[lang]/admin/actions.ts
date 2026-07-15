@@ -30,6 +30,8 @@ import { localToday } from "@/lib/admin/today";
 import { upsertHotelSettings, type HotelSettingsInput } from "@/lib/admin/settings";
 import { claimMomoInvoice } from "@/lib/platform/billing";
 import { addMessage, confirmResolution, createThread } from "@/lib/support";
+import { setInquiryStatus, type InquiryStatus } from "@/lib/venue";
+import { sendToOutbox } from "@/lib/witus-outbox";
 import {
   addUnit,
   createRoomType,
@@ -289,12 +291,17 @@ export async function publishAnnouncementAction(formData: FormData): Promise<voi
   const lang = String(formData.get("lang") ?? "en");
   const back = `/${lang}/admin/announce`;
   const ctx = await guardOr403("manager", lang);
-  const result = await setAnnouncementPublished(
-    ctx.tenant.id,
-    String(formData.get("announcementId") ?? ""),
-    formData.get("publish") === "1",
-  );
+  const announcementId = String(formData.get("announcementId") ?? "");
+  const publish = formData.get("publish") === "1";
+  const result = await setAnnouncementPublished(ctx.tenant.id, announcementId, publish);
   if (!result.ok) backTo(back, "error", result.code);
+  if (publish) {
+    // Social-draft moment for BAM's outbox (double-gated; best-effort).
+    await sendToOutbox("announcement.published", {
+      tenantId: ctx.tenant.id,
+      announcementId,
+    });
+  }
   backTo(back, "ok", "1");
 }
 
@@ -627,4 +634,17 @@ export async function confirmResolutionAction(formData: FormData): Promise<void>
   });
   if (!result.ok) backTo(back, "error", result.code);
   redirect(back);
+}
+
+export async function setInquiryStatusAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/events`;
+  const ctx = await guardOr403("manager", lang);
+  const result = await setInquiryStatus(
+    ctx.tenant.id,
+    String(formData.get("inquiryId") ?? ""),
+    String(formData.get("status") ?? "") as InquiryStatus,
+  );
+  if (!result.ok) backTo(back, "error", result.code);
+  backTo(back, "ok", "1");
 }
