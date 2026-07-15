@@ -7,6 +7,7 @@ import {
   removeTenantDomain,
 } from "@/lib/platform/domains";
 import { attachDomain, detachDomain } from "@/lib/vercel-domains";
+import { writeAudit } from "@/lib/audit";
 
 // Platform-owner actions. DB mapping first (source of truth for tenant
 // resolution), then the Vercel leg; a Vercel hiccup leaves a working DB row
@@ -29,6 +30,11 @@ export async function addDomainAction(formData: FormData): Promise<void> {
   if (!mapped.ok) {
     redirect(`${base}?error=${encodeURIComponent(mapped.code)}`);
   }
+  await writeAudit({
+    tenantId: String(formData.get("tenantId") ?? "") || null,
+    kind: "admin.domain.add",
+    summary: `Domain mapped: ${mapped.data.host}`,
+  });
   const vercel = await attachDomain(mapped.data.host);
   if (!vercel.ok) {
     redirect(
@@ -62,5 +68,10 @@ export async function removeDomainAction(formData: FormData): Promise<void> {
     redirect(`${base}?error=${encodeURIComponent(removed.code)}`);
   }
   if (removed.data.host) await detachDomain(removed.data.host);
+  await writeAudit({
+    tenantId: String(formData.get("tenantId") ?? "") || null,
+    kind: "admin.domain.remove",
+    summary: `Domain removed: ${removed.data.host ?? "?"}`,
+  });
   redirect(`${base}?ok=1`);
 }

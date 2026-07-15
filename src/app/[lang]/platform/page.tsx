@@ -75,8 +75,13 @@ export default async function PlatformPage({
               {dict.platform.support}
             </Link>
           </li>
-          <li className="rounded-full border border-slate-300 px-3 py-1.5 dark:border-slate-700">
-            {dict.platform.logs}
+          <li>
+            <Link
+              href={`/${lang}/platform/logs`}
+              className="inline-flex rounded-full border border-slate-900 px-3 py-1.5 font-semibold underline-offset-4 hover:underline dark:border-slate-100"
+            >
+              {dict.platform.logs}
+            </Link>
           </li>
         </ul>
       </nav>
