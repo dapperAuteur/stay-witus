@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SessionBar } from "@/components/session-bar";
 import { TenantHeader } from "@/components/hotel/tenant-header";
@@ -8,11 +9,19 @@ import { getSessionUser } from "@/lib/rbac";
 import { brandCssVars } from "@/lib/brand-presets";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
 import { fontPairCssVars } from "@/lib/fonts";
+import { tenantMetadata } from "@/lib/seo";
 import { resolveTenant } from "@/lib/tenant";
 
 // Tenant chrome: resolves the tenant from the request Host and applies its
 // brand preset + font pair as CSS custom properties. Pages below use
 // var(--brand-accent); headings opt into var(--font-heading).
+
+export async function generateMetadata(): Promise<Metadata> {
+  const tenant = await resolveTenant().catch(() => null);
+  // Platform hosts keep the root Stay.WitUS metadata; hotels get their own.
+  if (!tenant || tenant.flags.platform) return {};
+  return tenantMetadata(tenant);
+}
 
 export default async function LangLayout({
   children,
