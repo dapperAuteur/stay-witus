@@ -1,11 +1,13 @@
 import { and, desc, eq, or, sql } from "drizzle-orm";
 import { db, withTx } from "@/db";
 import {
+  mediaAssets,
   supportMessages,
   supportThreads,
   tenants,
   type SupportAttachment,
 } from "@/db/schema";
+import { deliveryUrl } from "@/lib/media/cloudinary";
 import { err, ok, type Result } from "@/lib/result";
 import { sendToInbox } from "@/lib/witus-inbox";
 
@@ -49,11 +51,30 @@ export async function createThread(args: {
     | "other";
   body: string;
   recordingUrl?: string;
+  /** media_assets.id from the signed-upload flow; tenant-verified below. */
+  screenshotMediaId?: string;
 }): Promise<Result<{ threadId: string }>> {
   if (!args.subject.trim()) return err("INVALID_SUBJECT", "Give it a subject.");
   if (!args.body.trim()) return err("INVALID_BODY", "Describe the issue.");
   if (args.recordingUrl?.trim() && !RECORDING_RE.test(args.recordingUrl.trim())) {
     return err("INVALID_URL", "Recording links must start with https://");
+  }
+
+  // Screenshot must belong to THIS tenant or it silently drops.
+  let screenshot: SupportAttachment | null = null;
+  if (args.screenshotMediaId) {
+    const [asset] = await db()
+      .select({ id: mediaAssets.id })
+      .from(mediaAssets)
+      .where(
+        and(
+          eq(mediaAssets.id, args.screenshotMediaId),
+          eq(mediaAssets.tenantId, args.tenantId),
+          eq(mediaAssets.status, "ready"),
+        ),
+      )
+      .limit(1);
+    if (asset) screenshot = { kind: "screenshot", mediaId: asset.id };
   }
 
   const result = await withTx(async (tx) => {
@@ -72,7 +93,10 @@ export async function createThread(args: {
       authorId: args.userId,
       authorRole: "user",
       body: args.body.trim(),
-      attachments: normalizeAttachments(args.recordingUrl),
+      attachments: [
+        ...(normalizeAttachments(args.recordingUrl) ?? []),
+        ...(screenshot ? [screenshot] : []),
+      ].slice(0, 4) || undefined,
     });
     return ok({ threadId: thread.id });
   });
@@ -169,11 +193,40 @@ export async function getThread(args: {
       );
   const [thread] = await db().select().from(supportThreads).where(guard).limit(1);
   if (!thread) return null;
-  const messages = await db()
+  const rawMessages = await db()
     .select()
     .from(supportMessages)
     .where(eq(supportMessages.threadId, thread.id))
     .orderBy(supportMessages.createdAt);
+  // Resolve screenshot mediaIds to delivery URLs (owner-tenant assets only).
+  const mediaIds = rawMessages.flatMap(
+    (message) =>
+      message.attachments
+        ?.filter((a) => a.kind === "screenshot" && a.mediaId)
+        .map((a) => a.mediaId as string) ?? [],
+  );
+  const assets = mediaIds.length
+    ? await db()
+        .select({ id: mediaAssets.id, publicId: mediaAssets.cloudinaryPublicId })
+        .from(mediaAssets)
+        .where(
+          and(
+            eq(mediaAssets.tenantId, thread.tenantId),
+            sql`${mediaAssets.id} in ${mediaIds}`,
+          ),
+        )
+    : [];
+  const urlById = new Map(
+    assets.map((asset) => [asset.id, deliveryUrl(asset.publicId, { width: 800 })]),
+  );
+  const messages = rawMessages.map((message) => ({
+    ...message,
+    attachments: message.attachments?.map((attachment) =>
+      attachment.kind === "screenshot" && attachment.mediaId
+        ? { ...attachment, url: urlById.get(attachment.mediaId) ?? undefined }
+        : attachment,
+    ),
+  }));
   // Seen stamps for the OTHER side's unread badge.
   const seenColumn = args.viewer.isPlatformAdmin
     ? { seenByAdminAt: new Date() }
