@@ -16,7 +16,11 @@ export function hasLocale(value: string): value is Locale {
  * When es lands, this is where Accept-Language negotiation slots in.
  */
 export function localeRedirectTarget(pathname: string): string | null {
-  if (pathname.startsWith("/api/") || pathname.startsWith("/_next/")) {
+  if (
+    pathname.startsWith("/api/") ||
+    pathname.startsWith("/_next/") ||
+    pathname === "/og" // generated OG card, not a page
+  ) {
     return null;
   }
   if (/\.[^/]+$/.test(pathname)) return null;

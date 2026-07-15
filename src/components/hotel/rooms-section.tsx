@@ -45,7 +45,7 @@ export function RoomsSection({
               >
                 {photo ? (
                   // eslint-disable-next-line @next/next/no-img-element -- Cloudinary f_auto/q_auto
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={photo.url}
                     alt=""
                     className="h-64 w-full object-cover sm:h-80 sm:w-3/5"
@@ -113,7 +113,7 @@ export function RoomsSection({
           >
             {thumbnails.get(room.id) ? (
               /* eslint-disable-next-line @next/next/no-img-element -- Cloudinary f_auto/q_auto */
-              <img
+              <img loading="lazy" decoding="async"
                 src={thumbnails.get(room.id)?.url}
                 alt=""
                 className="h-44 w-full object-cover"
