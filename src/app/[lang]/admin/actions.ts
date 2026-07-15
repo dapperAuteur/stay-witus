@@ -29,6 +29,7 @@ import {
 import { localToday } from "@/lib/admin/today";
 import { upsertHotelSettings, type HotelSettingsInput } from "@/lib/admin/settings";
 import { claimMomoInvoice } from "@/lib/platform/billing";
+import { addMessage, confirmResolution, createThread } from "@/lib/support";
 import {
   addUnit,
   createRoomType,
@@ -577,4 +578,53 @@ export async function claimInvoiceAction(formData: FormData): Promise<void> {
   const ctx = await guardOr403("owner", lang);
   await claimMomoInvoice(ctx.tenant.id, String(formData.get("invoiceId") ?? ""));
   backTo(back, "ok", "1");
+}
+
+export async function createThreadAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const back = `/${lang}/admin/support`;
+  const ctx = await guardOr403("front_desk", lang);
+  const result = await createThread({
+    tenantId: ctx.tenant.id,
+    userId: ctx.user.id,
+    subject: String(formData.get("subject") ?? ""),
+    category: String(formData.get("category") ?? "question") as Parameters<
+      typeof createThread
+    >[0]["category"],
+    body: String(formData.get("body") ?? ""),
+    recordingUrl: String(formData.get("recordingUrl") ?? "") || undefined,
+  });
+  if (!result.ok) backTo(back, "error", result.code);
+  redirect(`${back}/${result.data.threadId}`);
+}
+
+export async function replyThreadAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const threadId = String(formData.get("threadId") ?? "");
+  const back = `/${lang}/admin/support/${threadId}`;
+  const ctx = await guardOr403("front_desk", lang);
+  const result = await addMessage({
+    threadId,
+    authorId: ctx.user.id,
+    authorRole: "user",
+    body: String(formData.get("body") ?? ""),
+  });
+  if (!result.ok) backTo(back, "error", result.code);
+  redirect(back);
+}
+
+export async function confirmResolutionAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get("lang") ?? "en");
+  const threadId = String(formData.get("threadId") ?? "");
+  const back = `/${lang}/admin/support/${threadId}`;
+  const ctx = await guardOr403("front_desk", lang);
+  const result = await confirmResolution({
+    threadId,
+    tenantId: ctx.tenant.id,
+    userId: ctx.user.id,
+    confirmed: Boolean(formData.get("confirmed")),
+    disputeReason: String(formData.get("disputeReason") ?? "") || undefined,
+  });
+  if (!result.ok) backTo(back, "error", result.code);
+  redirect(back);
 }
