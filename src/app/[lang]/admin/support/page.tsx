@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { requireStaffPage } from "@/lib/admin/guard";
 import { listThreadsForUser } from "@/lib/support";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
+import { AttachmentUpload } from "@/components/attachment-upload";
+import { hasCloudinary } from "@/lib/media/cloudinary";
 import { createThreadAction } from "../actions";
 import { Flash } from "../flash";
 
@@ -87,6 +89,18 @@ export default async function AdminSupportPage({
             </label>
             <input id="su-rec" name="recordingUrl" type="url" className={INPUT} />
           </div>
+          {hasCloudinary() ? (
+            <AttachmentUpload
+              name="screenshotMediaId"
+              labels={{
+                field: s.screenshotField,
+                upload: s.screenshotUpload,
+                uploading: s.screenshotUploading,
+                done: s.screenshotDone,
+                failed: s.screenshotFailed,
+              }}
+            />
+          ) : null}
           <button
             type="submit"
             className="inline-flex min-h-11 w-fit items-center rounded-full px-6 text-sm font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"

@@ -626,6 +626,7 @@ export async function createThreadAction(formData: FormData): Promise<void> {
     >[0]["category"],
     body: String(formData.get("body") ?? ""),
     recordingUrl: String(formData.get("recordingUrl") ?? "") || undefined,
+    screenshotMediaId: String(formData.get("screenshotMediaId") ?? "") || undefined,
   });
   if (!result.ok) backTo(back, "error", result.code);
   redirect(`${back}/${result.data.threadId}`);

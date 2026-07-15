@@ -11,7 +11,7 @@ import { err, ok } from "@/lib/result";
 // signature for hotel A cannot register into hotel B.
 
 export async function POST(request: Request) {
-  const gate = await getStaffContext("manager");
+  const gate = await getStaffContext("front_desk");
   if (!gate.ok) {
     return NextResponse.json(err("FORBIDDEN", "Staff only."), { status: 403 });
   }

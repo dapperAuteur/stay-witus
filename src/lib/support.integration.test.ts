@@ -6,7 +6,7 @@ import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { db } from "@/db";
-import { tenants, users } from "@/db/schema";
+import { mediaAssets, tenants, users } from "@/db/schema";
 import {
   addMessage,
   closeThread,
@@ -45,6 +45,57 @@ describe.skipIf(!hasDb)("support lifecycle against Neon", () => {
     await db().delete(users).where(eq(users.id, userId));
   });
 
+  it("screenshot attachments: own-tenant enriched with URL, foreign dropped", async () => {
+    const [asset] = await db()
+      .insert(mediaAssets)
+      .values({
+        tenantId,
+        cloudinaryPublicId: `stay-witus/${tenantId}/itest-shot`,
+        altText: "Support screenshot",
+        status: "ready",
+      })
+      .returning({ id: mediaAssets.id });
+
+    const withShot = await createThread({
+      tenantId,
+      userId,
+      subject: "With screenshot",
+      category: "bug",
+      body: "See attached.",
+      screenshotMediaId: asset.id,
+    });
+    expect(withShot.ok).toBe(true);
+    if (!withShot.ok) return;
+    const view = await getThread({
+      threadId: withShot.data.threadId,
+      viewer: { userId: "admin", isPlatformAdmin: true },
+    });
+    const attachment = view?.messages[0].attachments?.find((a) => a.kind === "screenshot");
+    expect(attachment?.mediaId).toBe(asset.id);
+    expect(attachment && "url" in attachment ? attachment.url : undefined).toContain(
+      "res.cloudinary.com",
+    );
+
+    // A mediaId from another tenant silently drops (no cross-tenant leaks).
+    const foreign = await createThread({
+      tenantId,
+      userId,
+      subject: "Foreign shot",
+      category: "bug",
+      body: "x",
+      screenshotMediaId: randomUUID(),
+    });
+    expect(foreign.ok).toBe(true);
+    if (!foreign.ok) return;
+    const foreignView = await getThread({
+      threadId: foreign.data.threadId,
+      viewer: { userId: "admin", isPlatformAdmin: true },
+    });
+    expect(
+      foreignView?.messages[0].attachments?.some((a) => a.kind === "screenshot"),
+    ).toBeFalsy();
+  });
+
   it("full lifecycle with dispute reopening the queue", async () => {
     expect(
       await createThread({
@@ -69,7 +120,8 @@ describe.skipIf(!hasDb)("support lifecycle against Neon", () => {
     threadId = created.data.threadId;
 
     // Opener sees it; a stranger does not; admin does.
-    expect(await listThreadsForUser(tenantId, userId)).toHaveLength(1);
+    const opener = await listThreadsForUser(tenantId, userId);
+    expect(opener.some((t) => t.subject === "Calendar shows wrong month")).toBe(true);
     expect(
       await getThread({
         threadId,

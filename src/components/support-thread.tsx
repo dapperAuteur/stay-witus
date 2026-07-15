@@ -1,7 +1,9 @@
-import type { supportMessages } from "@/db/schema";
+import type { supportMessages, SupportAttachment } from "@/db/schema";
 import type { Dictionary } from "@/lib/dictionaries";
 
-type MessageRow = typeof supportMessages.$inferSelect;
+type MessageRow = Omit<typeof supportMessages.$inferSelect, "attachments"> & {
+  attachments?: (SupportAttachment & { url?: string })[] | null;
+};
 
 /** Message list shared by the staff and platform thread views. */
 export function SupportThreadMessages({
@@ -37,7 +39,17 @@ export function SupportThreadMessages({
             </p>
             <p className="mt-1 whitespace-pre-line">{message.body}</p>
             {message.attachments?.map((attachment, index) =>
-              attachment.kind === "recording_link" && attachment.url ? (
+              attachment.kind === "screenshot" && attachment.url ? (
+                /* eslint-disable-next-line @next/next/no-img-element -- Cloudinary f_auto/q_auto */
+                <img
+                  key={index}
+                  src={attachment.url}
+                  alt="Support screenshot"
+                  loading="lazy"
+                  decoding="async"
+                  className="mt-2 max-h-72 w-auto rounded-lg border border-slate-200 dark:border-slate-700"
+                />
+              ) : attachment.kind === "recording_link" && attachment.url ? (
                 <a
                   key={index}
                   href={attachment.url}
