@@ -50,7 +50,7 @@ export function HeroSection({
     return (
       <header className="relative flex min-h-[70vh] items-end">
         {/* eslint-disable-next-line @next/next/no-img-element -- owner-hosted URL */}
-        <img
+        <img fetchPriority="high" decoding="async"
           src={data.imageUrl}
           alt={data.imageAlt ?? ""}
           className="absolute inset-0 h-full w-full object-cover"
@@ -80,7 +80,7 @@ export function HeroSection({
     <header className="mx-auto max-w-4xl px-4">
       {showImage ? (
         // eslint-disable-next-line @next/next/no-img-element -- owner-hosted URL
-        <img
+        <img fetchPriority="high" decoding="async"
           src={data.imageUrl}
           alt={data.imageAlt ?? ""}
           className={`w-full object-cover ${tpl.key === "warm" ? "h-64 rounded-3xl sm:h-80" : "h-64 rounded-2xl sm:h-80"} mt-6`}

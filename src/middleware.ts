@@ -15,5 +15,5 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   // Skip api, Next internals, and anything with a file extension.
-  matcher: ["/((?!api|_next|.*\\..*).*)"],
+  matcher: ["/((?!api|_next|og$|.*\\..*).*)"],
 };

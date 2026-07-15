@@ -20,8 +20,10 @@ export function tenantMetadata(tenant: TenantRecord): Metadata {
       title: name,
       description,
       type: "website",
-      ...(og ? { images: [{ url: og }] } : {}),
+      // Real photo when the owner set one; branded generated card otherwise.
+      images: [{ url: og ?? "/og", width: 1200, height: 630 }],
     },
+    manifest: "/manifest.webmanifest",
   };
 }
 

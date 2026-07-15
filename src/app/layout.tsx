@@ -6,6 +6,14 @@ export const metadata: Metadata = {
   title: { default: "Stay.WitUS", template: "%s | Stay.WitUS" },
   description:
     "Hotel websites with booking, concierge, and guest messaging. A WitUS platform.",
+  openGraph: {
+    title: "Stay.WitUS",
+    description:
+      "Hotel websites with booking, concierge, and guest messaging. A WitUS platform.",
+    type: "website",
+    images: [{ url: "/og", width: 1200, height: 630 }],
+  },
+  manifest: "/manifest.webmanifest",
   // Ecosystem favicon: 02-duality variant (gemini/witus/public/brand/README.md) —
   // the one variant that carries contrast on light tabs. Platform surface only;
   // hotel tenants get tenants.theme.faviconUrl once per-tenant metadata lands.

@@ -112,7 +112,7 @@ export default async function BookPage({
               >
                 {thumbnails.get(room.roomTypeId) ? (
                   /* eslint-disable-next-line @next/next/no-img-element -- Cloudinary f_auto/q_auto */
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={thumbnails.get(room.roomTypeId)?.url}
                     alt=""
                     className="h-28 w-40 shrink-0 rounded-lg object-cover"

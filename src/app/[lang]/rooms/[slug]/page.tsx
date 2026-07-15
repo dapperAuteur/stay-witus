@@ -57,7 +57,7 @@ export default async function RoomDetailPage({
       {hero ? (
         <figure className="mt-6">
           {/* eslint-disable-next-line @next/next/no-img-element -- Cloudinary f_auto/q_auto */}
-          <img src={hero.url} alt={hero.alt} className="max-h-96 w-full rounded-2xl object-cover" />
+          <img loading="lazy" decoding="async" src={hero.url} alt={hero.alt} className="max-h-96 w-full rounded-2xl object-cover" />
         </figure>
       ) : null}
       {rest.length > 0 ? (
@@ -65,7 +65,7 @@ export default async function RoomDetailPage({
           {rest.map((photo) => (
             <li key={photo.photoId}>
               {/* eslint-disable-next-line @next/next/no-img-element -- Cloudinary f_auto/q_auto */}
-              <img src={photo.url} alt={photo.alt} className="h-36 w-full rounded-xl object-cover" />
+              <img loading="lazy" decoding="async" src={photo.url} alt={photo.alt} className="h-36 w-full rounded-xl object-cover" />
             </li>
           ))}
         </ul>

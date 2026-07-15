@@ -180,7 +180,7 @@ export default async function AdminRoomsPage({
                     {room.photos.map((photo) => (
                       <li key={photo.photoId} className="flex flex-col gap-1">
                         {/* eslint-disable-next-line @next/next/no-img-element -- Cloudinary delivers optimized f_auto/q_auto */}
-                        <img src={photo.url} alt={photo.alt} className="h-24 w-36 rounded-lg object-cover" />
+                        <img loading="lazy" decoding="async" src={photo.url} alt={photo.alt} className="h-24 w-36 rounded-lg object-cover" />
                         <form action={removeRoomPhotoAction}>
                           <input type="hidden" name="lang" value={lang} />
                           <input type="hidden" name="photoId" value={photo.photoId} />
