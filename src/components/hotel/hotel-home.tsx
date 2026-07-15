@@ -10,6 +10,7 @@ import {
 } from "@/db/schema";
 import type { Dictionary } from "@/lib/dictionaries";
 import { latestPublishedAnnouncement } from "@/lib/campaigns";
+import { hotelJsonLd } from "@/lib/seo";
 import { thumbnailsForRoomTypes } from "@/lib/rooms";
 import { BAND_TINT, templateFor } from "@/lib/templates";
 import { resolveSectionConfig, type SectionKey } from "@/lib/sections";
@@ -127,6 +128,8 @@ export async function HotelHome({
   const announcement = await latestPublishedAnnouncement(tenant.id).catch(() => null);
   const settings = settingsRows[0];
   const timezone = settings?.timezone ?? "Africa/Accra";
+  const heroData = (byKey.get("hero")?.data ?? {}) as { imageUrl?: string };
+  const jsonLd = await hotelJsonLd(tenant, heroData.imageUrl);
 
   const renderSection = (key: SectionKey) => {
     switch (key) {
@@ -202,6 +205,11 @@ export async function HotelHome({
 
   return (
     <main className={`pb-10 ${tpl.t.page}`}>
+      <script
+        type="application/ld+json"
+        // Structured data only — every value is owner-entered fact.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {announcement ? (
         <div className="mx-auto max-w-4xl px-4 pt-6">
           <aside
