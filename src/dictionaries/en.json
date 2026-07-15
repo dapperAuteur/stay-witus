@@ -765,6 +765,14 @@
       "close": "Close",
       "empty": "Inbox zero."
     },
+    "logsPage": {
+      "title": "Logs",
+      "allTenants": "All properties",
+      "kindField": "Kind starts with",
+      "filter": "Filter",
+      "empty": "Nothing logged yet.",
+      "older": "Older entries"
+    },
     "bannerTitle": "Landing-page promo banner",
     "bannerHint": "Shown across the top of stay.witus.online. Leave empty to hide. Your words - review before saving.",
     "bannerField": "Banner text",

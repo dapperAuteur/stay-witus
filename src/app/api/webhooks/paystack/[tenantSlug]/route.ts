@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { applyPaymentEvent } from "@/lib/payments/reservation-payments";
 import { providerForTenant } from "@/lib/payments/tenant-provider";
 import { err } from "@/lib/result";
+import { writeAudit } from "@/lib/audit";
 import { getTenantBySlug } from "@/lib/tenant";
 
 // Per-tenant Paystack webhook (each hotel has its own Paystack account, so
@@ -39,5 +40,13 @@ export async function POST(
 
   const event = provider.data.parseWebhookEvent(rawBody);
   const result = await applyPaymentEvent(tenant.id, event);
+  if (result.ok && result.data.applied && event.kind !== "ignored") {
+    await writeAudit({
+      tenantId: tenant.id,
+      kind: "webhook.paystack",
+      summary: `Payment ${event.kind === "payment_success" ? "succeeded" : "failed"}`,
+      data: { providerRef: event.providerRef },
+    });
+  }
   return NextResponse.json(result, { status: 200 });
 }

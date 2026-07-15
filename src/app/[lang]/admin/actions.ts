@@ -32,6 +32,7 @@ import { claimMomoInvoice } from "@/lib/platform/billing";
 import { addMessage, confirmResolution, createThread } from "@/lib/support";
 import { setInquiryStatus, type InquiryStatus } from "@/lib/venue";
 import { sendToOutbox } from "@/lib/witus-outbox";
+import { writeAudit } from "@/lib/audit";
 import {
   addUnit,
   createRoomType,
@@ -77,12 +78,17 @@ export async function reservationAction(formData: FormData): Promise<void> {
   const lang = String(formData.get("lang") ?? "en");
   const back = String(formData.get("back") ?? `/${lang}/admin/reservations`);
   const ctx = await guardOr403("front_desk", lang);
-  const result = await transitionReservation(
-    ctx.tenant.id,
-    String(formData.get("reservationId") ?? ""),
-    String(formData.get("action") ?? "") as ReservationAction,
-  );
+  const reservationId = String(formData.get("reservationId") ?? "");
+  const action = String(formData.get("action") ?? "") as ReservationAction;
+  const result = await transitionReservation(ctx.tenant.id, reservationId, action);
   if (!result.ok) backTo(back, "error", result.code);
+  await writeAudit({
+    tenantId: ctx.tenant.id,
+    actorUserId: ctx.user.id,
+    kind: "booking.transition",
+    summary: `Reservation ${action.replace("_", " ")} → ${result.data.status}`,
+    data: { reservationId, action },
+  });
   backTo(back, "ok", "1");
 }
 
@@ -374,12 +380,17 @@ export async function partnerStatusAction(formData: FormData): Promise<void> {
   const lang = String(formData.get("lang") ?? "en");
   const back = `/${lang}/admin/partners`;
   const ctx = await guardOr403("manager", lang);
-  const result = await setPartnerStatus(
-    ctx.tenant.id,
-    String(formData.get("partnerId") ?? ""),
-    String(formData.get("statusAction") ?? "") as PartnerStatusAction,
-  );
+  const partnerId = String(formData.get("partnerId") ?? "");
+  const statusAction = String(formData.get("statusAction") ?? "") as PartnerStatusAction;
+  const result = await setPartnerStatus(ctx.tenant.id, partnerId, statusAction);
   if (!result.ok) backTo(back, "error", result.code);
+  await writeAudit({
+    tenantId: ctx.tenant.id,
+    actorUserId: ctx.user.id,
+    kind: "partner.status",
+    summary: `Partner ${statusAction} → ${result.data.status}`,
+    data: { partnerId },
+  });
   backTo(back, "ok", "1");
 }
 
@@ -483,6 +494,13 @@ export async function saveSettingsAction(formData: FormData): Promise<void> {
   };
   const result = await upsertHotelSettings(ctx.tenant.id, input);
   if (!result.ok) backTo(back, "error", result.code);
+  await writeAudit({
+    tenantId: ctx.tenant.id,
+    actorUserId: ctx.user.id,
+    kind: "admin.settings.update",
+    summary: "Hotel settings updated",
+    data: { bookingMode: input.bookingMode, depositPercent: input.depositPercent },
+  });
   backTo(back, "ok", "1");
 }
 
@@ -583,7 +601,15 @@ export async function claimInvoiceAction(formData: FormData): Promise<void> {
   const lang = String(formData.get("lang") ?? "en");
   const back = `/${lang}/admin/billing`;
   const ctx = await guardOr403("owner", lang);
-  await claimMomoInvoice(ctx.tenant.id, String(formData.get("invoiceId") ?? ""));
+  const invoiceId = String(formData.get("invoiceId") ?? "");
+  await claimMomoInvoice(ctx.tenant.id, invoiceId);
+  await writeAudit({
+    tenantId: ctx.tenant.id,
+    actorUserId: ctx.user.id,
+    kind: "billing.invoice.claimed",
+    summary: "MoMo payment claimed by owner",
+    data: { invoiceId },
+  });
   backTo(back, "ok", "1");
 }
 

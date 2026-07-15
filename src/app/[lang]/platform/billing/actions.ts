@@ -8,6 +8,7 @@ import {
   voidInvoice,
 } from "@/lib/platform/billing";
 import { platformAccess } from "@/lib/platform/guard";
+import { writeAudit } from "@/lib/audit";
 
 async function guard(lang: string): Promise<string | null> {
   const access = await platformAccess();
@@ -40,7 +41,8 @@ export async function createInvoiceAction(formData: FormData): Promise<void> {
   const back = String(formData.get("back") ?? `/${lang}/platform/billing`);
   await guard(lang);
   const kind = String(formData.get("kind") ?? "custom");
-  const result = await createInvoice(String(formData.get("tenantId") ?? ""), {
+  const tenantId = String(formData.get("tenantId") ?? "");
+  const result = await createInvoice(tenantId, {
     kind: (["setup", "monthly", "custom"].includes(kind) ? kind : "custom") as
       | "setup"
       | "monthly"
@@ -51,6 +53,12 @@ export async function createInvoiceAction(formData: FormData): Promise<void> {
     dueDate: String(formData.get("dueDate") ?? "") || null,
   });
   if (!result.ok) backTo(back, "error", result.code);
+  await writeAudit({
+    tenantId,
+    kind: "billing.invoice.created",
+    summary: `Invoice ${result.data.code} created`,
+    data: { code: result.data.code },
+  });
   backTo(back, "ok", "1");
 }
 
@@ -59,8 +67,9 @@ export async function confirmInvoiceAction(formData: FormData): Promise<void> {
   const back = String(formData.get("back") ?? `/${lang}/platform/billing`);
   const userId = await guard(lang);
   const method = String(formData.get("method") ?? "other");
+  const invoiceId = String(formData.get("invoiceId") ?? "");
   const result = await confirmInvoicePaid(
-    String(formData.get("invoiceId") ?? ""),
+    invoiceId,
     userId,
     (["momo", "stripe", "other"].includes(method) ? method : "other") as
       | "momo"
@@ -68,6 +77,12 @@ export async function confirmInvoiceAction(formData: FormData): Promise<void> {
       | "other",
   );
   if (!result.ok) backTo(back, "error", result.code);
+  await writeAudit({
+    actorUserId: userId,
+    kind: "billing.invoice.paid",
+    summary: "Invoice confirmed paid",
+    data: { invoiceId, method },
+  });
   backTo(back, "ok", "1");
 }
 
