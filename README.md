@@ -29,7 +29,7 @@ UI work. `/api/health` reports which integrations are configured.
 
 Crashes report to **Better Stack** through the official `@sentry/nextjs` SDK (Better Stack
 exposes a Sentry-compatible ingest endpoint). Every init is guarded on a DSN, so **with no
-`SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` the SDK is completely inert** — nothing initialises and
+`SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN` the SDK is completely inert**: nothing initialises and
 nothing is sent. Setup steps are in `plans/user-tasks/08-betterstack-sentry-dsn.md`.
 
 Tracing and session replay are off (`tracesSampleRate: 0`, replays 0) and `sendDefaultPii` is

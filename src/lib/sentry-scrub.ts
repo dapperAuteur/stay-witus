@@ -122,9 +122,9 @@ export function redactText(text: string): string {
  * trips `SECRET_PARAM_RE` loses its value entirely, the rest get the free-text pass.
  *
  * This needs its own function because Sentry ships `request.query_string` as a separate field from
- * `request.url`, and a bare query string is not a parseable URL — `redactText`'s URL pass cannot
- * see it, so without this the token survives in a field of its own. Found by the test, not by
- * reading the code.
+ * `request.url`, and a bare query string is not a parseable URL. `redactText`'s URL pass therefore
+ * cannot see it, and without this the token survives in a field of its own. Found by the test
+ * rather than by reading the code.
  */
 export function redactQueryString(qs: string): string {
   const leading = qs.startsWith("?") ? "?" : "";
