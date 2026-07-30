@@ -4,7 +4,8 @@ import { getDictionary, hasLocale } from "@/lib/dictionaries";
 import { DEMO_TENANT_SLUG } from "@/lib/demo/seed";
 import { hasDemoLogin } from "@/lib/env";
 import { resolveTenant } from "@/lib/tenant";
-import { requestMagicLink } from "./actions";
+import { showWitusSignIn } from "@/lib/witus-sso";
+import { requestMagicLink, signInWithWitus } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,10 @@ export default async function SignInPage({
 
   const tenant = await resolveTenant().catch(() => null);
   const brand = tenant?.theme.name ?? tenant?.name ?? "Stay.WitUS";
+  // True only on the WitUS-branded platform host with no tenant resolved, so a hotel's
+  // guests never see a WitUS-branded option on their hotel's own site. The action
+  // re-checks this independently, since a server action is a public POST endpoint.
+  const witusSignIn = await showWitusSignIn();
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-6 py-16">
@@ -69,6 +74,25 @@ export default async function SignInPage({
               </button>
             </form>
           </div>
+        </section>
+      ) : null}
+
+      {witusSignIn ? (
+        <section
+          aria-label={s.witusHeading}
+          className="mt-6 rounded-xl border border-slate-200 p-4 dark:border-slate-800"
+        >
+          <h2 className="text-sm font-semibold">{s.witusHeading}</h2>
+          <p className="mt-1 text-xs text-slate-500">{s.witusHint}</p>
+          <form action={signInWithWitus} className="mt-3">
+            <input type="hidden" name="lang" value={lang} />
+            <button
+              type="submit"
+              className="inline-flex min-h-11 items-center rounded-full border border-slate-300 px-5 text-sm font-medium focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-slate-700"
+            >
+              {s.witusButton}
+            </button>
+          </form>
         </section>
       ) : null}
 

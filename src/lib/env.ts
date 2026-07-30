@@ -28,6 +28,15 @@ export const env = {
   VERCEL_PROJECT_ID: process.env.VERCEL_PROJECT_ID,
   VERCEL_TEAM_ID: process.env.VERCEL_TEAM_ID,
 
+  // "Sign in with WitUS" — ecosystem OIDC client against accounts.witus.online.
+  // Registered as slug `stay` in gemini/witus/lib/identity/clients.ts, whose ONLY
+  // redirect URI is https://stay.witus.online/api/auth/oauth2/callback/witus. That
+  // single registration is deliberate: see shouldShowWitusSignIn in src/lib/witus-sso.ts.
+  // Optional, so the provider and the button stay off until BAM sets the client id.
+  WITUS_OIDC_CLIENT_ID: process.env.WITUS_OIDC_CLIENT_ID,
+  WITUS_OIDC_CLIENT_SECRET: process.env.WITUS_OIDC_CLIENT_SECRET,
+  WITUS_OIDC_DISCOVERY_URL: process.env.WITUS_OIDC_DISCOVERY_URL,
+
   WITUS_INBOX_URL: process.env.WITUS_INBOX_URL,
   WITUS_INBOX_HMAC_SECRET: process.env.WITUS_INBOX_HMAC_SECRET,
   OUTBOX_URL: process.env.OUTBOX_URL,
@@ -52,6 +61,8 @@ export const hasMailgun = Boolean(env.MAILGUN_API_KEY && env.MAILGUN_DOMAIN);
 export const hasStripePlatform = Boolean(env.STRIPE_SECRET_KEY);
 export const hasVercelDomains = Boolean(env.VERCEL_DOMAINS_TOKEN && env.VERCEL_PROJECT_ID);
 export const hasWitusInbox = Boolean(env.WITUS_INBOX_URL && env.WITUS_INBOX_HMAC_SECRET);
+/** Gates the genericOAuth provider AND the sign-in button. Both stay off without it. */
+export const hasWitusSso = Boolean(env.WITUS_OIDC_CLIENT_ID && env.WITUS_OIDC_CLIENT_SECRET);
 export const hasDemoLogin = Boolean(
   env.DEMO_VISITOR_USER_EMAIL &&
     env.DEMO_VISITOR_PASSWORD &&
