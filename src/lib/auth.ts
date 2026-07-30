@@ -1,15 +1,21 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
-import { magicLink } from "better-auth/plugins";
+import { genericOAuth, magicLink } from "better-auth/plugins";
 import { db, schema } from "@/db";
-import { env } from "@/lib/env";
+import { env, hasWitusSso } from "@/lib/env";
 import { sendEmail } from "@/lib/mailer";
 import { getTenantByHost } from "@/lib/tenant";
 
-// Product-local Better Auth (no shared WitUS OIDC — learnwitus white-label
-// precedent). Passwordless only: staff arrive by invite, partners and guests
-// by magic link. Lazy singleton so builds without env never construct it.
+// Product-local Better Auth. Passwordless only: staff arrive by invite, partners
+// and guests by magic link. Lazy singleton so builds without env never construct it.
+//
+// "Sign in with WitUS" (genericOAuth, below) is available on the WitUS-BRANDED
+// platform host ONLY, never on a hotel tenant domain — the learnwitus white-label
+// precedent. Customer tenants keep tenant-branded magic links, sent from the hotel's
+// own domain. The gate that decides whether the button renders is
+// src/lib/witus-sso.ts; the IdP independently backs it up by registering only the
+// branded host's redirect URI, so a tenant host fails closed.
 
 let _auth: ReturnType<typeof buildAuth> | null = null;
 
@@ -67,6 +73,30 @@ function buildAuth() {
           });
         },
       }),
+      // Spread, not a conditional entry, so the provider is absent rather than
+      // present-but-broken when credentials are unset. An empty config would let
+      // the /sign-in/oauth2 route exist and fail at the IdP instead of 404ing here.
+      ...(hasWitusSso
+        ? [
+            genericOAuth({
+              config: [
+                {
+                  providerId: "witus",
+                  clientId: env.WITUS_OIDC_CLIENT_ID as string,
+                  clientSecret: env.WITUS_OIDC_CLIENT_SECRET as string,
+                  // Labelled fallback, not an assumed value: the IdP owns this URL, so
+                  // prefer the env var and treat the literal as a default to override
+                  // (authoritative-values rule).
+                  discoveryUrl:
+                    env.WITUS_OIDC_DISCOVERY_URL ??
+                    "https://accounts.witus.online/api/idp/.well-known/openid-configuration",
+                  scopes: ["openid", "email", "profile"],
+                  pkce: true,
+                },
+              ],
+            }),
+          ]
+        : []),
       nextCookies(),
     ],
   });

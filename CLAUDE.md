@@ -24,6 +24,15 @@ though its tenancy machinery is lifted from witus-learn. Canonical product regis
 - **Auth is product-local Better Auth.** No shared WitUS OIDC for customer tenants
   (learnwitus white-label precedent). Guests book accountless; magic-link stay accounts
   are optional. BAM = `users.isPlatformOwner`.
+  - **"Sign in with WitUS" exists on the WitUS-BRANDED platform host ONLY** (registered
+    slug `stay`, added 2026-07-29). Never on a hotel tenant domain: a hotel's guests
+    must never be redirected to `accounts.witus.online`, which would reveal the shared
+    backend. Three independent layers enforce it — the host gate
+    (`shouldShowWitusSignIn`, src/lib/witus-sso.ts, unit-tested), the sign-in server
+    action re-checking it because a server action is a public POST endpoint, and the
+    IdP registering only the branded host's redirect URI so a tenant host fails closed
+    with a 400. **Never add a tenant host to that entry's `extraRedirectUris`** — that
+    would remove the last layer.
 - **No AI-generated content reaches guests** (ecosystem rule): copy is human-written;
   seeds are placeholders owners rewrite.
 
