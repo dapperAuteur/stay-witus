@@ -23,7 +23,40 @@ pnpm dev
 ```
 
 Without a `DATABASE_URL`, pages render a setup notice instead of crashing — useful for
-UI work. `/api/health` reports which integrations are configured.
+UI work. `/api/health` will report `503` in that state, because it checks the database
+for real (see below).
+
+## Uptime monitoring: `/api/health`
+
+Point Better Stack (and any other uptime monitor) at **`/api/health`, not at `/`**. The
+homepage can serve a cached `200` while the database is down, so a monitor on `/` can stay
+green straight through an outage. `/api/health` runs the cheapest possible liveness query
+(`select 1`) on every request, so a green check means the app is running *and* its database
+answered.
+
+| Condition | Status | Body |
+|---|---|---|
+| Query returned | `200` | `{"ok":true,"checks":{"db":"ok"}}` |
+| Unreachable, no `DATABASE_URL`, or slower than 4s | `503` | `{"ok":false,"error":"database_unreachable"}` |
+
+`HEAD` returns the same status with no body. Responses are `Cache-Control: no-store` and the
+route is `force-dynamic` with `revalidate = 0`, so a monitor can never be answered from cache.
+
+It is public and unauthenticated, and it is built to give away nothing:
+
+- **Tenant-agnostic.** It never resolves a tenant from the host and never reads a tenant,
+  hotel, room, booking, or guest row. `select 1` touches no table, so the answer is identical
+  on every domain, and a property with no bookings still reads as up.
+- **No guest data, ever.** The body is a fixed literal with no row, no count, and nothing that
+  implies volume. This app holds guest names, phone numbers, addresses, and payment references.
+- **No raw errors.** The failure path is a bare `catch` with no binding: the response is a fixed
+  literal and the log line is a constant string, never `err.message`, because a driver error can
+  carry the connection string and the log sink is as readable as the response body.
+- **No third-party calls.** Paystack, Mailgun, and Cloudinary are deliberately not checked. A
+  payment-vendor outage must not turn the uptime monitor red, and vendor errors carry tokens.
+
+`src/app/api/health/route.test.ts` is the proof; keep it green. `src/middleware.ts` excludes
+`/api` from the locale redirect, so the monitor is never bounced to `/en/...`.
 
 ## Error monitoring
 
