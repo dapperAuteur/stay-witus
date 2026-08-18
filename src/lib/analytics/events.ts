@@ -19,8 +19,17 @@
  * gemini/witus/lib/analytics/INTEGRATE.md for the integration playbook.
  */
 
-/** Slug carried on every event so this app's data stays separable in the shared project. */
-export const ANALYTICS_APP = "stay-witus";
+/**
+ * Slug carried on every event so this app's data stays separable in the shared project.
+ *
+ * This is the IDENTITY slug — `stay`, the value registered for this app in
+ * gemini/witus/lib/identity/clients.ts — not the repo name. That is the rule
+ * (INTEGRATE.md step 4) and it is load-bearing: a funnel can join PostHog events to the
+ * app that authenticated the user without a translation table. Using "stay-witus" here
+ * would fragment one app into two series in the shared project, and no back-fill merges
+ * them cleanly. gemini/witus/scripts/check-posthog-conformance.mjs enforces the value.
+ */
+export const ANALYTICS_APP = "stay";
 
 /**
  * Events with identical names across every ecosystem app. Names are contractual.
