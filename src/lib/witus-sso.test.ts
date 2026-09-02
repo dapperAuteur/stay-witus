@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { brandedHostFrom, shouldShowWitusSignIn } from "./witus-sso";
+import { brandedHostFrom, shouldShowWitusSignIn, showWitusSignIn, witusEcosystemEnabled } from "./witus-sso";
 
 // The gate that keeps "Sign in with WitUS" off hotel tenant domains. A false positive
 // here redirects a hotel's guests to accounts.witus.online and reveals the shared
@@ -70,5 +70,17 @@ describe("shouldShowWitusSignIn", () => {
     );
     expect(shouldShowWitusSignIn({ ...base, requestHost: "notstay.witus.online" })).toBe(false);
     expect(shouldShowWitusSignIn({ ...base, requestHost: "stay.witus.onlin" })).toBe(false);
+  });
+});
+
+describe("witusEcosystemEnabled", () => {
+  it("IS showWitusSignIn — one gate, not two that can drift apart", () => {
+    // Three surfaces cross to accounts.witus.online: the sign-in button, the silent
+    // "Continue as ..." probe, and global sign-out. They read the gate under two names
+    // because "showWitusSignIn" does not describe a logout redirect, but they must never
+    // become two implementations: the failure mode is someone tightening one host check
+    // and leaving the other, so a hotel's guests stop seeing the button but still get
+    // redirected to the IdP on sign-out. Identity, not equivalence, is what rules that out.
+    expect(witusEcosystemEnabled).toBe(showWitusSignIn);
   });
 });

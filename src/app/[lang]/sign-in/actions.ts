@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth, hasAuth } from "@/lib/auth";
+import { withAttemptMarker } from "@/lib/silent-sso";
 import { showWitusSignIn } from "@/lib/witus-sso";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -50,7 +51,19 @@ export async function signInWithWitus(formData: FormData): Promise<void> {
   }
 
   const result = await auth().api.signInWithOAuth2({
-    body: { providerId: "witus", callbackURL: `/${lang}` },
+    body: {
+      providerId: "witus",
+      callbackURL: `/${lang}`,
+      // Half of the loop guard, on the paths Better Auth CAN route: a failure after
+      // it has parsed the OAuth state (token exchange, issuer mismatch) comes back to
+      // the sign-in form carrying `?sso=tried`, so the silent check does not offer
+      // "Continue as ..." again and send the visitor straight back round.
+      //
+      // The other half lives in src/app/api/auth/[...all]/route.ts, because Better
+      // Auth redirects on an IdP-returned `error` BEFORE it parses that state and so
+      // never reads this value in exactly the case that matters most.
+      errorCallbackURL: withAttemptMarker(`/${lang}/sign-in`),
+    },
     headers: await headers(),
   });
 

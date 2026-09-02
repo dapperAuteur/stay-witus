@@ -103,3 +103,24 @@ export const showWitusSignIn = cache(async (): Promise<boolean> => {
     tenantOutcome: await tenantOutcome(),
   });
 });
+
+/**
+ * THE SAME GATE, under the name the rest of the ecosystem wiring reads by.
+ *
+ * "Sign in with WitUS" was the first thing this gate protected, but it is not the
+ * only one. Two more surfaces cross to accounts.witus.online and must be dark on a
+ * hotel tenant domain for exactly the same reason:
+ *
+ *   - the silent "Continue as <name>" probe on the sign-in page, and
+ *   - global sign-out, which redirects to the IdP's endsession endpoint.
+ *
+ * A single request from a hotel's own domain both reveals that the ecosystem exists
+ * AND tells it that someone visited that hotel — so this is not merely "don't show a
+ * button", it is "don't touch that origin at all".
+ *
+ * Deliberately an ALIAS — the same binding, not a second implementation. A parallel
+ * `showEcosystemSso()` with its own copy of the host comparison is exactly how one
+ * of these three surfaces ends up gated differently from the others after someone
+ * edits one and not the other. witus-sso.test.ts pins the identity so it stays one.
+ */
+export const witusEcosystemEnabled = showWitusSignIn;
