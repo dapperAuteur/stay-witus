@@ -29,8 +29,18 @@ import { normalizeHost, resolveTenant } from "@/lib/tenant";
 // mocking next/headers or the database (see witus-sso.test.ts) — no test in this repo
 // uses vi.mock, and a security gate is the last place to start.
 
-/** What the tenant lookup told us. `unknown` means it threw, e.g. database down. */
-export type TenantOutcome = "none" | "tenant" | "unknown";
+/**
+ * What the tenant lookup told us.
+ *
+ * `platform` is NOT a nicety — it is the difference between this feature working and not.
+ * `scripts/seed-tenants.ts` registers `stay.witus.online` itself as a domain of the seeded
+ * PLATFORM tenant (`flags.platform: true`), and `src/db/schema/tenancy.ts` says so in as many
+ * words. So on the branded host a tenant genuinely does resolve, and collapsing that into
+ * `tenant` would hide the WitUS button on the only host it is meant to appear on.
+ *
+ * `unknown` means the lookup threw, e.g. the database is down.
+ */
+export type TenantOutcome = "none" | "platform" | "tenant" | "unknown";
 
 /**
  * The host this deployment treats as its WitUS-branded origin, derived from
@@ -57,10 +67,20 @@ export function brandedHostFrom(betterAuthUrl: string | undefined): string | nul
  * The whole decision, as a pure function.
  *
  * Requires ALL of: credentials configured, a known branded host, the request arriving on
- * that host, and no tenant resolved. The tenant check is redundant today — the branded
- * host should never be in `tenant_domains` — but it means that if it ever is, making the
- * branded host serve a hotel, the button disappears rather than appearing on a
- * white-labelled page.
+ * that host, and a tenant outcome of `none` or `platform`.
+ *
+ * THIS USED TO REQUIRE `none` AND THAT WAS A BUG. The comment here previously read "the
+ * tenant check is redundant today — the branded host should never be in `tenant_domains`".
+ * It is in there: `scripts/seed-tenants.ts` does `ensureDomain(platformId,
+ * "stay.witus.online")`, and `src/db/schema/tenancy.ts` documents exactly that. So
+ * `getTenantByHost` returns the platform tenant on the branded host, the outcome was
+ * `tenant`, and the button would never have rendered anywhere — dead on arrival, and
+ * silently, because "no WitUS button" is also what correct white-label behaviour looks
+ * like. Found 2026-09-02 while wiring the same gate into realestate-witus, which seeds its
+ * platform host the same way.
+ *
+ * An allow-list, deliberately: only `none` and `platform` pass. A new outcome added later
+ * fails closed by default rather than inheriting permission.
  *
  * Fails CLOSED on every uncertainty, including `unknown`. The asymmetry is the point:
  * a false negative costs BAM a magic link, a false positive leaks the shared backend to
@@ -76,13 +96,17 @@ export function shouldShowWitusSignIn(input: {
   if (!hasCredentials) return false;
   if (!brandedHost || !requestHost) return false;
   if (normalizeHost(requestHost) !== brandedHost) return false;
-  return tenantOutcome === "none";
+  return tenantOutcome === "none" || tenantOutcome === "platform";
 }
 
 /** Resolves the tenant, mapping a thrown lookup to `unknown` rather than to "no tenant". */
 async function tenantOutcome(): Promise<TenantOutcome> {
   try {
-    return (await resolveTenant()) ? "tenant" : "none";
+    const tenant = await resolveTenant();
+    if (!tenant) return "none";
+    // The platform tenant owns the branded host itself (seed-tenants.ts). A HOTEL tenant
+    // resolving here is the case that must stay dark.
+    return tenant.flags?.platform ? "platform" : "tenant";
   } catch {
     return "unknown";
   }
@@ -103,3 +127,24 @@ export const showWitusSignIn = cache(async (): Promise<boolean> => {
     tenantOutcome: await tenantOutcome(),
   });
 });
+
+/**
+ * THE SAME GATE, under the name the rest of the ecosystem wiring reads by.
+ *
+ * "Sign in with WitUS" was the first thing this gate protected, but it is not the
+ * only one. Two more surfaces cross to accounts.witus.online and must be dark on a
+ * hotel tenant domain for exactly the same reason:
+ *
+ *   - the silent "Continue as <name>" probe on the sign-in page, and
+ *   - global sign-out, which redirects to the IdP's endsession endpoint.
+ *
+ * A single request from a hotel's own domain both reveals that the ecosystem exists
+ * AND tells it that someone visited that hotel — so this is not merely "don't show a
+ * button", it is "don't touch that origin at all".
+ *
+ * Deliberately an ALIAS — the same binding, not a second implementation. A parallel
+ * `showEcosystemSso()` with its own copy of the host comparison is exactly how one
+ * of these three surfaces ends up gated differently from the others after someone
+ * edits one and not the other. witus-sso.test.ts pins the identity so it stays one.
+ */
+export const witusEcosystemEnabled = showWitusSignIn;

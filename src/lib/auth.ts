@@ -3,7 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { genericOAuth, magicLink } from "better-auth/plugins";
 import { db, schema } from "@/db";
-import { env, hasWitusSso } from "@/lib/env";
+import { WITUS_OIDC_DISCOVERY_FALLBACK, env, hasWitusSso } from "@/lib/env";
 import { sendEmail } from "@/lib/mailer";
 import { getTenantByHost } from "@/lib/tenant";
 
@@ -86,10 +86,11 @@ function buildAuth() {
                   clientSecret: env.WITUS_OIDC_CLIENT_SECRET as string,
                   // Labelled fallback, not an assumed value: the IdP owns this URL, so
                   // prefer the env var and treat the literal as a default to override
-                  // (authoritative-values rule).
-                  discoveryUrl:
-                    env.WITUS_OIDC_DISCOVERY_URL ??
-                    "https://accounts.witus.online/api/idp/.well-known/openid-configuration",
+                  // (authoritative-values rule). The literal itself lives in env.ts
+                  // because the silent-SSO probe and the global-sign-out endpoint derive
+                  // from the same value — if they ever disagreed, the "Continue as ..."
+                  // check would probe a different host than the click signs in against.
+                  discoveryUrl: env.WITUS_OIDC_DISCOVERY_URL ?? WITUS_OIDC_DISCOVERY_FALLBACK,
                   scopes: ["openid", "email", "profile"],
                   pkce: true,
                 },

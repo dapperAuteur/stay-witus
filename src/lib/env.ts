@@ -1,3 +1,8 @@
+import {
+  endSessionEndpointFromDiscovery,
+  silentSsoEndpointFromDiscovery,
+} from "@/lib/silent-sso";
+
 // Central env access. Never read .env files in tooling; values come from
 // process.env (Vercel env / local .env loaded by Next).
 
@@ -69,3 +74,50 @@ export const hasDemoLogin = Boolean(
     env.DEMO_ADMIN_USER_EMAIL &&
     env.DEMO_ADMIN_PASSWORD,
 );
+
+// --- Ecosystem SSO endpoints -------------------------------------------------
+//
+// Both derive from the discovery URL this app is ALREADY configured with, so
+// accounts.witus.online is named in exactly one place in this repo (below) and
+// nowhere else asserts a URL the IdP owns (authoritative-values rule).
+//
+// Both are ALSO gated a second time at every call site by showWitusSignIn()
+// (src/lib/witus-sso.ts). These constants only answer "is this app a configured
+// ecosystem client?" — they cannot see the request host, and the host is what
+// keeps a hotel tenant's guests off accounts.witus.online.
+
+/**
+ * Labelled fallback, not an assumed value: the IdP owns this URL, so the env var
+ * wins and this is the default to override. Exported so src/lib/auth.ts and the
+ * endpoint derivations below cannot drift into probing a different host than the
+ * one the click actually signs in against.
+ */
+export const WITUS_OIDC_DISCOVERY_FALLBACK =
+  "https://accounts.witus.online/api/idp/.well-known/openid-configuration";
+
+const witusDiscoveryUrl = env.WITUS_OIDC_DISCOVERY_URL ?? WITUS_OIDC_DISCOVERY_FALLBACK;
+
+/**
+ * Where the sign-in page's silent "Continue as ..." check asks the IdP who the
+ * browser is. `null` unless the ecosystem OIDC client is configured, because an
+ * affordance the visitor cannot complete is worse than no affordance.
+ */
+export const witusSilentSsoEndpoint: string | null = hasWitusSso
+  ? silentSsoEndpointFromDiscovery(witusDiscoveryUrl)
+  : null;
+
+/**
+ * Where sign-out ends the SHARED WitUS session (BAM's decision, 2026-08-30:
+ * signing out of one WitUS app signs you out of all of them).
+ *
+ * client_id IS REQUIRED, not optional: Better Auth's endSession endpoint rejects a
+ * post_logout_redirect_uri with invalid_request unless the request carries either a
+ * verifiable id_token_hint or an explicit client_id, and we have no id_token here.
+ * Baked in on the SERVER so nothing client-side ever reads the raw env.
+ */
+export const witusEndSessionEndpoint: string | null = (() => {
+  if (!hasWitusSso) return null;
+  const base = endSessionEndpointFromDiscovery(witusDiscoveryUrl);
+  if (!base) return null;
+  return `${base}?client_id=${encodeURIComponent(env.WITUS_OIDC_CLIENT_ID as string)}`;
+})();

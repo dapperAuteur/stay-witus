@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { WitusSignInButton } from "@/components/witus-sign-in-button";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
 import { DEMO_TENANT_SLUG } from "@/lib/demo/seed";
-import { hasDemoLogin } from "@/lib/env";
+import { hasDemoLogin, witusSilentSsoEndpoint } from "@/lib/env";
+import { getSessionUser } from "@/lib/rbac";
 import { resolveTenant } from "@/lib/tenant";
 import { showWitusSignIn } from "@/lib/witus-sso";
 import { requestMagicLink, signInWithWitus } from "./actions";
@@ -34,6 +36,8 @@ export default async function SignInPage({
   // guests never see a WitUS-branded option on their hotel's own site. The action
   // re-checks this independently, since a server action is a public POST endpoint.
   const witusSignIn = await showWitusSignIn();
+  // Nothing to ask the IdP on behalf of someone who is already signed in here.
+  const signedIn = Boolean(await getSessionUser().catch(() => null));
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-6 py-16">
@@ -86,12 +90,20 @@ export default async function SignInPage({
           <p className="mt-1 text-xs text-slate-500">{s.witusHint}</p>
           <form action={signInWithWitus} className="mt-3">
             <input type="hidden" name="lang" value={lang} />
-            <button
-              type="submit"
-              className="inline-flex min-h-11 items-center rounded-full border border-slate-300 px-5 text-sm font-medium focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current dark:border-slate-700"
-            >
-              {s.witusButton}
-            </button>
+            {/* The IdP endpoint is passed ONLY here, inside `witusSignIn ? ... : null`,
+                so a hotel tenant's browser never receives the URL at all — it cannot
+                probe a host it was never told about, even if this component changed. */}
+            <WitusSignInButton
+              enabled={witusSignIn}
+              silentCheckUrl={witusSilentSsoEndpoint}
+              signedIn={signedIn}
+              copy={{
+                signIn: s.witusButton,
+                continueAs: s.witusContinueAs,
+                redirecting: s.witusRedirecting,
+                notYou: s.witusNotYou,
+              }}
+            />
           </form>
         </section>
       ) : null}
