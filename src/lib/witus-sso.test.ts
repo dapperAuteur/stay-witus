@@ -42,10 +42,28 @@ describe("shouldShowWitusSignIn", () => {
     expect(shouldShowWitusSignIn({ ...base, requestHost: "demo.stay.witus.online" })).toBe(false);
   });
 
-  it("HIDES when a tenant resolves on the branded host", () => {
-    // Defends the case where the branded host is itself added to tenant_domains: the
-    // button must vanish rather than appear on a white-labelled page.
+  it("HIDES when a HOTEL tenant resolves on the branded host", () => {
+    // Defends the case where the branded host is pointed at a hotel: the button must
+    // vanish rather than appear on a white-labelled page.
     expect(shouldShowWitusSignIn({ ...base, tenantOutcome: "tenant" })).toBe(false);
+  });
+
+  it("SHOWS when the PLATFORM tenant resolves — the branded host is seeded as one", () => {
+    // THE REGRESSION THIS PINS. This assertion used to be `toBe(false)`, because the gate
+    // required tenantOutcome === "none" on the belief that "the branded host should never
+    // be in tenant_domains". It always is: scripts/seed-tenants.ts does
+    // ensureDomain(platformId, "stay.witus.online") and schema/tenancy.ts documents it. So
+    // the outcome on the branded host is a resolved tenant, and the button rendered
+    // NOWHERE — invisibly, because "no WitUS button" is also what correct white-label
+    // behaviour looks like.
+    expect(shouldShowWitusSignIn({ ...base, tenantOutcome: "platform" })).toBe(true);
+  });
+
+  it("still refuses a platform outcome on a host that is not the branded one", () => {
+    // The platform allowance must not become a bypass of the host check.
+    expect(
+      shouldShowWitusSignIn({ ...base, tenantOutcome: "platform", requestHost: "www.bamhotel.com" }),
+    ).toBe(false);
   });
 
   it("HIDES when the tenant lookup failed, rather than assuming no tenant", () => {
