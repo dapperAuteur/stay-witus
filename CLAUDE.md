@@ -46,6 +46,12 @@ though its tenancy machinery is lifted from witus-learn. Canonical product regis
   `plans/user-tasks/NN-slug.md` (venture-level queue currently lives in
   `gemini/wanderlearn/plans/user-tasks/`). Migrations ALWAYS file a run-migration task —
   a merged migration that isn't applied 500s the next deploy.
+- **Search gitignored `plans/` for anything BAM mentions:** ideas, plans, and decisions
+  usually live in a `plans/` dir of this or another ecosystem repo, untracked by git.
+  Default `rg`/`git grep`/editor search skip them; use `rg -uu` (exclude `node_modules`,
+  `.next`, `.git`, worktrees) across the repos in `gemini/witus/docs/ecosystem-repos.json`.
+  A git-aware miss proves nothing; ask BAM before concluding it was never written. Full
+  rule: `gemini/witus/CLAUDE.md` §"Plans convention".
 - **Conventions:** `{ok,data}|{ok,error,code}` envelope for every action/route
   (src/lib/result.ts); Tailwind only, `slate-*` neutrals; WCAG 2.1 AA; 44px touch
   targets; focus-visible ring; mobile-first at 375×667; dictionaries via
