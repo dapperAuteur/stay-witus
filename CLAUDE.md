@@ -52,6 +52,9 @@ though its tenancy machinery is lifted from witus-learn. Canonical product regis
   `.next`, `.git`, worktrees) across the repos in `gemini/witus/docs/ecosystem-repos.json`.
   A git-aware miss proves nothing; ask BAM before concluding it was never written. Full
   rule: `gemini/witus/CLAUDE.md` §"Plans convention".
+- **New app ideas get vetted before building:** score them with the WitUS rubric
+  (`gemini/witus/docs/app-idea-vetting-rubric.md`) and write the analysis in
+  `gemini/witus/plans/`. Full rule: `gemini/witus/CLAUDE.md` §"New-product vetting rule".
 - **Conventions:** `{ok,data}|{ok,error,code}` envelope for every action/route
   (src/lib/result.ts); Tailwind only, `slate-*` neutrals; WCAG 2.1 AA; 44px touch
   targets; focus-visible ring; mobile-first at 375×667; dictionaries via
