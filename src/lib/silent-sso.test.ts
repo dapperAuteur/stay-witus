@@ -178,15 +178,15 @@ describe("TENANT ISOLATION: a hotel tenant host makes zero requests to the IdP",
     expect(code).toContain("endpoint: silentCheckUrl,");
   });
 
-  it("gates global SIGN-OUT on the same server-resolved host check", () => {
-    const action = read("src/app/[lang]/sign-out-action.ts");
-    const code = stripComments(action);
+  it("gates \"Sign out of WitUS everywhere\" on the same server-resolved host check", () => {
     // Same binding as the sign-in gate (see witus-sso.test.ts for the identity proof),
     // so a hotel guest is not redirected to the IdP on the way out either.
-    expect(code).toContain("await witusEcosystemEnabled()");
-    // The IdP redirect is INSIDE that check, and it is the only redirect that leaves us.
-    const gated = code.slice(code.indexOf("if (await witusEcosystemEnabled())"));
-    expect(gated).toContain("redirect(endSession)");
+    const helper = stripComments(read("src/lib/sign-out.ts"));
+    expect(helper).toContain("if (!(await witusEcosystemEnabled())) return null;");
+    const code = stripComments(read("src/app/[lang]/sign-out-action.ts"));
+    // The only redirect that leaves us comes from that gated helper.
+    expect(code).toContain("const endSession = await witusEverywhereSignOutUrl();");
+    expect(code).toContain("if (endSession) redirect(endSession);");
     expect(code).not.toContain("https://");
     // Nothing from the posted form decides whether we touch the IdP.
     expect(code).not.toMatch(/formData\.get\((?!"lang")/);
@@ -389,7 +389,7 @@ describe("the IdP URLs are derived, never invented", () => {
   });
 });
 
-describe("global sign-out", () => {
+describe("sign out of WitUS everywhere", () => {
   const endSession =
     "https://accounts.witus.online/api/idp/oauth2/endsession?client_id=stay-client";
 
@@ -428,26 +428,38 @@ describe("global sign-out", () => {
 
   it("destroys the LOCAL session before handing off to the IdP", () => {
     // ORDER IS THE SAFETY PROPERTY. Hand off first and any IdP failure becomes
-    // "I clicked sign out and I am still signed in".
+    // "I clicked sign out and I am still signed in". Behaviour is pinned in
+    // src/app/[lang]/sign-out-action.test.ts; this pins the source shape.
     const action = read("src/app/[lang]/sign-out-action.ts");
-    const local = action.indexOf(".api.signOut(");
-    const handoff = action.indexOf("redirect(endSession)");
+    const everywhere = action.slice(action.indexOf("export async function signOutEverywhereAction"));
+    const local = everywhere.indexOf("await endLocalSession();");
+    const handoff = everywhere.indexOf("redirect(endSession)");
     expect(local).toBeGreaterThan(-1);
     expect(handoff).toBeGreaterThan(-1);
     expect(local).toBeLessThan(handoff);
     // And the local sign-out cannot be skipped by an IdP-side failure: it is awaited
-    // with its own catch, above the gate.
+    // with its own catch.
     expect(action).toContain(".catch(() => null);");
   });
 
-  it("says what it does: 'Sign out of WitUS' only where it is global", () => {
+  it("plain \"Sign out\" is local only and never renamed (BAM, 2026-10-29, task 128 (b))", () => {
+    const action = stripComments(read("src/app/[lang]/sign-out-action.ts"));
+    const plain = action.slice(
+      action.indexOf("export async function signOutAction"),
+      action.indexOf("export async function signOutEverywhereAction"),
+    );
+    expect(plain).not.toContain("witusEverywhereSignOutUrl");
+    expect(plain).not.toContain("redirect(endSession)");
     const bar = read("src/components/session-bar.tsx");
-    expect(bar).toContain("const globalSignOut = await witusEcosystemEnabled();");
-    expect(bar).toContain("{globalSignOut ? c.signOutWitus : c.signOut}");
-    // Both strings come from the dictionary; no hardcoded English in a localized app.
+    expect(bar).not.toContain("signOutWitus");
+    // All strings come from the dictionary; no hardcoded English in a localized app.
     const dict = JSON.parse(read("src/dictionaries/en.json"));
     expect(dict.common.signOut).toBe("Sign out");
-    expect(dict.common.signOutWitus).toBe("Sign out of WitUS");
+    expect(dict.common.signOutWitus).toBeUndefined();
+    expect(dict.common.signOutEverywhere).toBe("Sign out of WitUS everywhere");
+    expect(dict.common.signOutEverywhereHelp).toBe(
+      "Also signs you out of WitUS. Other WitUS apps you are signed in to stay signed in until you sign out of them.",
+    );
   });
 });
 

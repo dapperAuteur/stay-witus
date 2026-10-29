@@ -5,6 +5,9 @@ export default defineConfig({
   resolve: {
     alias: { "@": path.resolve(__dirname, "src") },
   },
+  // tsconfig says jsx "preserve" (Next compiles it); tests that render a component
+  // need the automatic runtime instead of the classic React.createElement.
+  esbuild: { jsx: "automatic" },
   test: {
     setupFiles: ["./vitest.setup.ts"],
     // Integration tests round-trip to Neon.
