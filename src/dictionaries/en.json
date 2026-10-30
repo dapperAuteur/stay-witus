@@ -4,6 +4,7 @@
     "loading": "Loading",
     "backHome": "Back to home",
     "signedInAs": "Signed in as",
+    "signIn": "Sign in",
     "adminLink": "Front desk",
     "platformLink": "Platform admin",
     "signOut": "Sign out",
@@ -224,7 +225,9 @@
   "nav": {
     "book": "Book",
     "events": "Events",
-    "home": "Home"
+    "home": "Home",
+    "roadmap": "Roadmap",
+    "primary": "Primary"
   },
   "demoRibbon": {
     "text": "This is the Stay.WitUS demo hotel. Everything resets at midnight.",

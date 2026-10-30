@@ -29,7 +29,16 @@ test("platform landing renders with demo + roadmap doors", async ({ page }) => {
   await expectAccessible(page);
 });
 
-test("demo hotel homepage: Editorial template, ribbon, booking door", async ({ page }) => {
+// Sign-in control rule (witus docs/shared-ui-ux-dx.md): the platform header
+// always offers "Sign in" to a signed-out visitor, named exactly that.
+test("platform header shows Sign in @smoke", async ({ page }) => {
+  await page.goto(`${PLATFORM}/en`);
+  const signIn = page.getByRole("banner").getByRole("link", { name: "Sign in", exact: true });
+  await expect(signIn).toBeVisible();
+  await expect(signIn).toHaveAttribute("href", "/en/sign-in");
+});
+
+test("demo hotel homepage: Editorial template, ribbon, booking door",async ({ page }) => {
   await page.goto(`${DEMO}/en`);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("BAM Hotel");
   // Demo ribbon (signed-out) links to the demo login.
